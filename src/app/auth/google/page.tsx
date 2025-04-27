@@ -41,6 +41,7 @@ export default function GoogleAuthPage() {
   }, [state, code]);
 
   if (isLoading) {
+    console.log("Loading...");
     return <LoadingState />;
   }
 

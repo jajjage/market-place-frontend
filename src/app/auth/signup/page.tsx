@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { SignupForm } from "@/app/auth/_components/signup-form";
 import { RoleSelection } from "@/components/auth/role-selection";
@@ -26,6 +26,7 @@ export default function SignupPage() {
   const router = useRouter();
   const { register } = useAuth();
   const [step, setStep] = useState<"details" | "role">("details");
+  const hasRedirected = useRef(false);
   const [formData, setFormData] = useState<{
     first_name: string;
     last_name: string;
@@ -48,6 +49,26 @@ export default function SignupPage() {
         ? "There was a problem processing your signup. Please try again."
         : null
   );
+
+  useEffect(() => {
+    const callbackUrl = localStorage.getItem("callbackUrl");
+    const hasRedirected = sessionStorage.getItem("hasRedirected");
+
+    // 1) Only if we have a callbackUrl,
+    // 2) AND we haven't redirected before in this tab,
+    // 3) AND the URL doesn’t already include it
+    if (callbackUrl && !hasRedirected && !window.location.search.includes("callbackUrl=")) {
+      // Mark that we’re about to redirect (so next reload we skip this block)
+      sessionStorage.setItem("hasRedirected", "true");
+
+      // Build the URL without any old query params
+      const base = window.location.origin + window.location.pathname;
+      const newUrl = `${base}?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+
+      // Replace the current history entry (no extra “back” step)
+      window.location.replace(newUrl);
+    }
+  }, []);
 
   const handleDetailsSubmit = (data: {
     first_name: string;
