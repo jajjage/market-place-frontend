@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/hooks/use-auth";
 import { useRouter } from "next/navigation";
 
@@ -33,15 +33,49 @@ export function useGoogleAuth({ state, code }: UseGoogleAuthParams) {
   const authMode =
     typeof window !== "undefined" ? localStorage.getItem("googleAuthMode") || "signup" : "signup";
 
+  // Clear URL parameters to prevent reusing the auth code
+  const clearAuthParams = () => {
+    if (typeof window !== "undefined") {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  };
+
+  // Check if code is expired
+  const isCodeExpired = () => {
+    if (typeof window !== "undefined") {
+      const codeTimestamp = localStorage.getItem("oauth_code_timestamp");
+      const currentTime = Date.now();
+
+      // If we have a timestamp and it's older than 5 minutes, it's expired
+      if (codeTimestamp && currentTime - parseInt(codeTimestamp) > 300000) {
+        localStorage.removeItem("oauth_code_timestamp");
+        return true;
+      }
+
+      // Set timestamp if not already set
+      if (!codeTimestamp) {
+        localStorage.setItem("oauth_code_timestamp", currentTime.toString());
+      }
+    }
+    return false;
+  };
+
+  // Process the Google authentication
   const processGoogleAuth = async () => {
     // Skip if we've already attempted auth or parameters aren't available
     if (authAttempted || !state || !code || Array.isArray(state) || Array.isArray(code)) {
       !authAttempted && setError("Missing or invalid authentication parameters");
-      setIsLoading(false);
+      clearAuthParams();
       return;
     }
-    //work in progress to add the userType if he use the buy link
-    // # TODO ⚡Implementing a flow to extract userType if he use a Buy link to bypass the role choice component
+
+    // Check if code is expired
+    if (isCodeExpired()) {
+      setError("Authentication session expired. Please try again.");
+      clearAuthParams();
+      return;
+    }
+
     // Mark that we've attempted authentication
     setAuthAttempted(true);
 
@@ -52,6 +86,10 @@ export function useGoogleAuth({ state, code }: UseGoogleAuthParams) {
       const response = await googleAuth(state, code);
       console.log("Google auth response:", response);
 
+      // Clear URL parameters after processing to prevent reuse
+      clearAuthParams();
+
+      setIsLoading(true);
       // Check if user exists and has a role
       if (response.meta.requestStatus === "fulfilled") {
         setUserData((response.payload as { data: typeof userData }).data);
@@ -66,8 +104,9 @@ export function useGoogleAuth({ state, code }: UseGoogleAuthParams) {
           console.log("User has role, redirecting to dashboard:", userType);
           // Clear the auth mode from localStorage
           localStorage.removeItem("googleAuthMode");
-          const callbackUrl = localStorage.getItem("callbackUrl");
+          localStorage.removeItem("oauth_code_timestamp");
 
+          const callbackUrl = localStorage.getItem("callbackUrl");
           if (callbackUrl) {
             console.log("Redirecting to callback URL:", callbackUrl);
             window.location.href = callbackUrl;
@@ -88,6 +127,9 @@ export function useGoogleAuth({ state, code }: UseGoogleAuthParams) {
         setIsLoading(false);
       }
     } catch (error) {
+      // Clear URL parameters on error too
+      clearAuthParams();
+
       console.error("Error processing Google auth:", error);
       setError("Authentication failed. Please try again.");
       setIsLoading(false);
@@ -120,6 +162,7 @@ export function useGoogleAuth({ state, code }: UseGoogleAuthParams) {
           console.log("User has role, redirecting to dashboard:", userType);
           // Clear the auth mode from localStorage
           localStorage.removeItem("googleAuthMode");
+          localStorage.removeItem("oauth_code_timestamp");
 
           // Redirect based on user type
           router.push(userType === "SELLER" ? "/dashboard/seller" : "/dashboard");

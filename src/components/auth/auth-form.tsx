@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -43,6 +43,7 @@ export type AuthFormProps = {
   footerLinkText?: string;
   footerLinkHref?: string;
   className?: string;
+  callbackUrl?: string | null;
 };
 
 export function AuthForm({
@@ -55,6 +56,7 @@ export function AuthForm({
   footerText,
   footerLinkText,
   footerLinkHref,
+  callbackUrl,
   className,
 }: AuthFormProps) {
   const router = useRouter();
@@ -70,6 +72,14 @@ export function AuthForm({
     type === "login" ? "Don't have an account?" : "Already have an account?";
   const defaultFooterLink = type === "login" ? "Sign Up" : "Log In";
   const defaultFooterHref = type === "login" ? "/signup" : "/login";
+
+  useEffect(() => {
+    if (callbackUrl) {
+      localStorage.setItem("callbackUrl", callbackUrl);
+    } else {
+      localStorage.removeItem("callbackUrl");
+    }
+  }, [callbackUrl]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -200,7 +210,7 @@ export function AuthForm({
               {footerText || defaultFooterText}{" "}
               {footerLinkText && (
                 <Link
-                  href={footerLinkHref || defaultFooterHref}
+                  href={{ pathname: footerLinkHref || defaultFooterHref, query: { callbackUrl } }}
                   className="font-medium text-primary underline-offset-4 hover:underline"
                 >
                   {footerLinkText || defaultFooterLink}

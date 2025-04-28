@@ -6,7 +6,6 @@ import { useGoogleAuth } from "@/lib/hooks/use-google-auth";
 import LoadingState from "./loading";
 import { ErrorState } from "./error-state";
 import { RoleSelectionWrapper } from "./role-selection-wrapper";
-import { useRouter } from "next/navigation";
 
 interface Props {
   state?: string;
@@ -14,7 +13,6 @@ interface Props {
 }
 
 export default function GoogleAuthClient({ state, code }: Props) {
-  const router = useRouter();
   const {
     isLoading,
     error,
@@ -24,24 +22,37 @@ export default function GoogleAuthClient({ state, code }: Props) {
     handleRoleSelect,
     authAttempted,
     setIsLoading,
-    setAuthAttempted,
   } = useGoogleAuth({ state: state ?? "", code: code ?? "" });
 
   useEffect(() => {
-    setAuthAttempted(false);
-    setIsLoading(true);
-  }, [state, code]);
+    // Only run on client side
+    if (typeof window === "undefined" || authAttempted) {
+      return;
+    }
 
-  // Now *try* auth only once per unique state/code:
-  useEffect(() => {
-    if (!authAttempted && state && code) {
+    // Prevent rapid auth attempts
+    const lastAuthTime = localStorage.getItem("last_auth_time");
+    const currentTime = Date.now();
+
+    if (lastAuthTime && currentTime - parseInt(lastAuthTime) < 3000) {
+      console.log("Preventing rapid auth attempts");
+      return;
+    }
+
+    localStorage.setItem("last_auth_time", currentTime.toString());
+
+    // Only process if we have code and state
+    if (code && state) {
       processGoogleAuth();
-    } else if (!state || !code) {
+    } else {
       setIsLoading(false);
     }
-  }, [state, code]);
+  }, []);
+
+  console.log("Current state:", { isLoading, error, showRoleSelection });
 
   if (isLoading) {
+    console.log("Rendering loading state");
     return <LoadingState />;
   }
 
