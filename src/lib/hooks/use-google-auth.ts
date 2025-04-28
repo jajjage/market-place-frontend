@@ -1,6 +1,8 @@
+"use client";
+
 import { useState } from "react";
 import { useAuth } from "@/lib/hooks/use-auth";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 interface HandleRoleSelectResult {
   success: boolean;
@@ -16,10 +18,10 @@ interface RouterType {
 interface UseGoogleAuthParams {
   state: string;
   code: string;
-  router: RouterType;
 }
 
-export function useGoogleAuth({ state, code, router }: UseGoogleAuthParams) {
+export function useGoogleAuth({ state, code }: UseGoogleAuthParams) {
+  const router: RouterType = useRouter();
   const { googleAuth, updateUserRole } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

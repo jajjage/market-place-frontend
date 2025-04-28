@@ -18,7 +18,11 @@ export default function LoginPage() {
   const [callbackInfo, setCallbackInfo] = useState<string | null>(null);
 
   // Store the callback URL in localStorage for later use
-  localStorage.setItem("callbackUrl", callbackUrl || " ");
+  if (callbackUrl) {
+    localStorage.setItem("callbackUrl", callbackUrl);
+  } else {
+    localStorage.removeItem("callbackUrl");
+  }
 
   const loginFields = [
     {

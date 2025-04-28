@@ -21,7 +21,8 @@ export default function PasswordResetConfirmPage({ params }: PasswordResetConfir
   const [unwrapped, setUnwrapped] = useState<{ uid: string; token: string } | null>(null);
   const [resetSuccess, setResetSuccess] = useState(false);
 
-  // Properly unwrap params using React.use()
+  // Properly unwrap
+
   useEffect(() => {
     let cancelled = false;
     Promise.resolve(params)

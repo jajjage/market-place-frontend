@@ -1,6 +1,8 @@
+"use client";
+
 import { useState, useEffect } from "react";
 
-export default function LoadingSpinner() {
+export default function LoadingSpinner({}) {
   const [dots, setDots] = useState("");
 
   useEffect(() => {
