@@ -1,4 +1,4 @@
-import { User, UserLogin } from "@/types/user";
+import { User } from "@/types/user";
 
 // Initial state
 export interface AuthState {
@@ -7,7 +7,6 @@ export interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  authChecked: boolean; // New flag to track if auth status has been checked
 }
 
 export interface userState {

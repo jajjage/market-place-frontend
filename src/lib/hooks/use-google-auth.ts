@@ -89,7 +89,6 @@ export function useGoogleAuth({ state, code }: UseGoogleAuthParams) {
       // Clear URL parameters after processing to prevent reuse
       clearAuthParams();
 
-      setIsLoading(true);
       // Check if user exists and has a role
       if (response.meta.requestStatus === "fulfilled") {
         setUserData((response.payload as { data: typeof userData }).data);

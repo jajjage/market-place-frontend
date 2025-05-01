@@ -129,7 +129,6 @@ const initialState: AuthState = {
   isAuthenticated: false,
   isLoading: false,
   error: null,
-  authChecked: false,
 };
 
 const authSlice = createSlice({
@@ -171,14 +170,14 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         state.status = "succeeded";
         state.user = action.payload;
-        // state.authChecked = true;
+        //
         // We'll set isAuthenticated when getCurrentUser succeeds
       })
       .addCase(login.rejected, (state, action) => {
         state.isAuthenticated = false;
         state.user = null;
         state.status = "failed";
-        // state.authChecked = true;
+        //
       })
 
       // Get current user cases
@@ -190,14 +189,14 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.user = action.payload;
         state.isAuthenticated = true;
-        state.authChecked = true; // We've checked auth and know user is logged in
+        // We've checked auth and know user is logged in
       })
       .addCase(getCurrentUser.rejected, (state, action) => {
         state.isLoading = false;
         state.user = null;
         state.isAuthenticated = false;
         state.error = (action.payload as string) || "Failed to get current user";
-        state.authChecked = true; // We've checked auth and know user is not logged in
+        // We've checked auth and know user is not logged in
       })
 
       // Update user cases

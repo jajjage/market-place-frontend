@@ -16,6 +16,7 @@ import {
   handleAuthError,
 } from "@/lib/validation/auth-validation";
 import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAppDispatch } from "@/lib/redux/store";
 
 interface user_type {
   role: "BUYER" | "SELLER";
@@ -23,7 +24,7 @@ interface user_type {
 
 export function SignupClient() {
   const router = useRouter();
-  const { register } = useAuth();
+  const { register, login } = useAuth();
   const [step, setStep] = useState<"details" | "role">("details");
   const [errorMessage, setErrorMessage] = useState<string | null>("");
 
@@ -55,6 +56,7 @@ export function SignupClient() {
 
     if (!validationResult.success) {
       setErrorMessage(handleZodError(validationResult.error));
+      console.log(errorMessage);
       return;
     }
 
@@ -85,7 +87,15 @@ export function SignupClient() {
       const result = await register(completeFormData);
 
       if (result && result.type && result.type.endsWith("/fulfilled")) {
-        router.push("/dashboard");
+        // Handle successful registration
+        const loginResult = await login({
+          email: formData.email,
+          password: formData.password,
+        });
+        if (loginResult && loginResult.type && loginResult.type.endsWith("/fulfilled")) {
+          // Handle successful login
+          router.push("/dashboard");
+        }
         return { success: true };
       } else {
         // Handle API rejection errors
@@ -125,6 +135,14 @@ export function SignupClient() {
 
   return (
     <>
+      {errorMessage && step === "details" && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{errorMessage}</AlertDescription>
+        </Alert>
+      )}
+
       {errorMessage && step === "role" && (
         <Alert variant="destructive" className="mb-4">
           <AlertCircle className="h-4 w-4" />
@@ -146,7 +164,7 @@ export function SignupClient() {
             </div>
           </div>
 
-          <SignupForm onSubmit={handleDetailsSubmit} />
+          <SignupForm onSubmit={handleDetailsSubmit} error={errorMessage} />
         </div>
       ) : (
         <>

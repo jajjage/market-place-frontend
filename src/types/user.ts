@@ -3,27 +3,82 @@ export interface User {
   email: string;
   first_name: string;
   last_name: string;
-  user_type: "BUYER" | "SELLER";
-  verification_status?: "VERIFIED" | string;
-  
-  // Optional profile object that appears in some responses
-  profile?: {
-    id: string;
-    bio?: string;
-    address?: Record<string, any>; // Using generic Record since address structure isn't clear
-    profile_picture?: string;
-    phone_number?: string;
-    rating?: string;
-    total_reviews?: number;
-    is_featured?: boolean;
-    social_links?: Record<string, any>;
-  };
+  user_type: "SELLER" | "BUYER" | string;
+  verification_status: "VERIFIED" | "UNVERIFIED" | string;
+  profile: UserProfile;
+  store: UserStore | null;
+  addresses: UserAddress[];
+  received_ratings: UserRating[];
 }
 
+interface UserProfile {
+  id: string;
+  display_name: string;
+  profile_picture: string | null;
+  bio: string;
+  email_verified: boolean;
+  phone_verified: boolean;
+  identity_verified: boolean;
+  phone_number: string;
+  country: string;
+  city: string;
+  member_since: string; // ISO date string
+  last_active: string; // ISO date string
+  transactions_completed: number;
+  notification_email: boolean;
+  notification_sms: boolean;
+  verified_status: string;
+  total_sales: number;
+  total_purchases: number;
+  created_at: string; // ISO date string
+  updated_at: string; // ISO date string
+}
+
+interface UserStore {
+  id: string;
+  user: string; // User ID reference
+  name: string;
+  slug: string;
+  logo: string | null;
+  banner: string | null;
+  description: string;
+  return_policy: string;
+  shipping_policy: string;
+  website: string;
+  created_at: string; // ISO date string
+  updated_at: string; // ISO date string
+}
+
+interface UserAddress {
+  id: string;
+  user: string; // User ID reference
+  address_type: "shipping" | "billing" | "both";
+  is_default: boolean;
+  name: string;
+  street_address: string;
+  apartment: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  country: string;
+  phone: string;
+  created_at: string; // ISO date string
+  updated_at: string; // ISO date string
+}
+
+interface UserRating {
+  id: string;
+  transaction: string; // Transaction ID reference
+  from_user: string; // User ID reference
+  to_user: string; // User ID reference
+  rating: number; // 1-5
+  comment: string;
+  created_at: string; // ISO date string
+  updated_at: string; // ISO date string
+}
 export interface UserLogin {
   email: string;
   password: string;
-  
 }
 
 export interface UserCreate {
@@ -35,14 +90,14 @@ export interface UserCreate {
   re_password: string;
 }
 
-
-export type UserUpdate = Partial<Pick<User, 'email' | 'first_name' | 'last_name' | 'user_type' | 'profile'>>
+export type UserUpdate = Partial<
+  Pick<User, "email" | "first_name" | "last_name" | "user_type" | "profile">
+>;
 
 export interface ActivateUserParams {
   uid: string;
   token: string;
 }
-
 
 export interface SetPasswordParams {
   re_new_password: string;
@@ -66,4 +121,3 @@ export interface ResetPasswordConfirmParams {
   new_password: string;
   re_new_password: string;
 }
-

@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { FormInput } from "@/components/ui/form-input";
 import { Loader2 } from "lucide-react";
@@ -18,11 +18,28 @@ interface SignupFormProps {
     password: string;
     re_password: string;
   }) => void;
+  error?: string | null;
 }
 
-export function SignupForm({ onSubmit }: SignupFormProps) {
+export function SignupForm({ onSubmit, error }: SignupFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
+
+  useEffect(() => {
+    if (error) {
+      // Map the error message to the appropriate form field
+      if (error.toLowerCase().includes("email")) {
+        setFormErrors({ email: error });
+      } else if (error.toLowerCase().includes("password")) {
+        setFormErrors({ password: error });
+      } else {
+        // General error that doesn't map to a specific field
+        setFormErrors({ general: error });
+      }
+    } else {
+      setFormErrors({});
+    }
+  }, [error]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -34,34 +51,6 @@ export function SignupForm({ onSubmit }: SignupFormProps) {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
     const re_password = formData.get("confirmPassword") as string;
-
-    // Validate form data
-    const errors: FormErrors = {};
-
-    if (!first_name || first_name.length < 2) {
-      errors.name = "Name must be at least 2 characters";
-    }
-    if (!last_name || last_name.length < 2) {
-      errors.name = "Name must be at least 2 characters";
-    }
-
-    if (!email || !email.includes("@")) {
-      errors.email = "Please enter a valid email address";
-    }
-
-    if (!password || password.length < 8) {
-      errors.password = "Password must be at least 8 characters";
-    }
-
-    if (password !== re_password) {
-      errors.confirmPassword = "Passwords do not match";
-    }
-
-    if (Object.keys(errors).length > 0) {
-      setFormErrors(errors);
-      setIsSubmitting(false);
-      return;
-    }
 
     // Submit form data to parent component
     onSubmit({
@@ -84,7 +73,7 @@ export function SignupForm({ onSubmit }: SignupFormProps) {
         placeholder="Enter your first name"
         required
         autoComplete="first_name"
-        state={formErrors.first_namename ? "error" : "default"}
+        state={formErrors.first_name ? "error" : "default"}
         helperText={formErrors.first_name}
       />
       <FormInput
@@ -128,6 +117,9 @@ export function SignupForm({ onSubmit }: SignupFormProps) {
         state={formErrors.confirmPassword ? "error" : "default"}
         helperText={formErrors.confirmPassword}
       />
+      {formErrors.general && (
+        <p className="text-sm text-red-500">{formErrors.general}</p>
+      )}
       <Button type="submit" className="w-full" disabled={isSubmitting}>
         {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
         Continue
