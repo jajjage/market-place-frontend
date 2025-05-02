@@ -1,29 +1,53 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { useAppDispatch, useAppSelector } from "@/lib/redux/store";
-import { getCurrentUser } from "@/lib/redux/features/auth/authSlice";
+import { useEffect } from "react";
+import { useCurrentUser, useLogout } from "@/lib/hooks/use-auth";
+import { setUser } from "@/lib/redux/features/auth/authSlice";
+import { useAppDispatch } from "@/lib/redux/store";
 
-interface AuthProviderProps {
-  children: React.ReactNode;
-}
+import { authRefreshFailedEvent, apiUnauthorizedEvent } from "@/lib/api";
 
-export const AuthProvider = ({ children }: AuthProviderProps) => {
+export function AuthInitializer() {
+  const { data: userData, isSuccess } = useCurrentUser();
+  const logout = useLogout();
   const dispatch = useAppDispatch();
-  const { isAuthenticated } = useAppSelector(
-    (s) =>
-      s.auth ?? {
-        isAuthenticated: false,
-        authChecked: false,
-      }
-  );
 
-  // Initial auth check on mount
+  // Handle user data when it changes
   useEffect(() => {
-    if (!isAuthenticated) {
-      dispatch(getCurrentUser());
+    if (isSuccess && userData) {
+      dispatch(setUser(userData));
     }
-  }, [dispatch, isAuthenticated]);
+  }, [isSuccess, userData, dispatch]);
 
-  return <>{children}</>;
-};
+  // Listen for auth events
+  useEffect(() => {
+    // This runs when the refresh token endpoint itself returns 401
+    // It means we're definitely logged out
+    const handleRefreshFailed = () => {
+      console.log("Token refresh failed, logging out");
+      logout.mutate();
+      dispatch(setUser(null));
+    };
+
+    // This runs when a regular API endpoint returns 401
+    // The interceptor has already tried to refresh the token and that failed too
+    const handleApiUnauthorized = () => {
+      console.log("API unauthorized and refresh failed, logging out");
+      logout.mutate();
+      dispatch(setUser(null));
+    };
+
+    // Add event listeners using the imported event types
+    document.addEventListener(authRefreshFailedEvent.type, handleRefreshFailed);
+    document.addEventListener(apiUnauthorizedEvent.type, handleApiUnauthorized);
+
+    // Clean up
+    return () => {
+      document.removeEventListener(authRefreshFailedEvent.type, handleRefreshFailed);
+      document.removeEventListener(apiUnauthorizedEvent.type, handleApiUnauthorized);
+    };
+  }, [logout, dispatch]);
+
+  // This component doesn't render anything
+  return null;
+}

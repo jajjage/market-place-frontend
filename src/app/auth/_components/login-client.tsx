@@ -1,17 +1,16 @@
-// app/auth/login/_components/login-client.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { AuthForm } from "@/components/auth/auth-form";
-import { useAuth } from "@/lib/hooks/use-auth";
+import { useLogin } from "@/lib/hooks/use-auth"; // Adjust the import path
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 import { debugOAuthFlow } from "@/lib/debug-auth";
-import { loginSchema, handleZodError, handleAuthError } from "@/lib/validation/auth-validation";
+import { loginSchema, handleZodError } from "@/lib/validation/auth-validation";
 
 export function LoginClient({ callbackUrl }: { callbackUrl?: string }) {
-  const { login } = useAuth();
+  const loginMutation = useLogin();
   const [callbackInfo, setCallbackInfo] = useState<string | null>(null);
 
   const loginFields = [
@@ -62,45 +61,37 @@ export function LoginClient({ callbackUrl }: { callbackUrl?: string }) {
 
     // Proceed with login
     try {
-      const result = await login({ email, password });
+      await loginMutation.mutateAsync({ email, password });
 
-      if (result && result.type && result.type.endsWith("/fulfilled")) {
-        // Get the callback URL from the search params
-        const searchParams = new URLSearchParams(window.location.search);
-        const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+      // Get the callback URL from the search params
+      const searchParams = new URLSearchParams(window.location.search);
+      const redirectUrl = searchParams.get("callbackUrl") || "/dashboard";
 
-        // Redirect to the callback URL or dashboard by default
-        window.location.href = decodeURI(callbackUrl);
-        // Assuming the login was successful
-        return { success: true };
-      } else {
-        // Handle API rejection errors
-        const errorPayload = (result as any)?.payload;
-        console.log(errorPayload);
-        let errorMessage = "Login failed";
-
-        if (errorPayload) {
-          // Extract specific error messages from the API response
-          if (errorPayload.non_field_errors) {
-            errorMessage = errorPayload.non_field_errors[0];
-          } else if (errorPayload.detail) {
-            errorMessage = errorPayload.detail;
-          } else if (errorPayload.email) {
-            errorMessage = `Email: ${errorPayload.email[0]}`;
-          } else if (errorPayload.password) {
-            errorMessage = `Password: ${errorPayload.password[0]}`;
-          }
-        }
-
-        return {
-          success: false,
-          message: `${errorMessage} check email or password`,
-        };
-      }
+      // Redirect to the callback URL or dashboard by default
+      window.location.href = decodeURI(redirectUrl);
+      return { success: true };
     } catch (error: any) {
+      let errorMessage = "Login failed";
+      const errorPayload = error.response?.data;
+
+      if (errorPayload) {
+        // Extract specific error messages from the API response
+        if (errorPayload.non_field_errors) {
+          errorMessage = errorPayload.non_field_errors[0];
+        } else if (errorPayload.detail) {
+          errorMessage = errorPayload.detail;
+        } else if (errorPayload.email) {
+          errorMessage = `Email: ${errorPayload.email[0]}`;
+        } else if (errorPayload.password) {
+          errorMessage = `Password: ${errorPayload.password[0]}`;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
       return {
         success: false,
-        message: handleAuthError(error),
+        message: `${errorMessage} check email or password`,
       };
     }
   };
@@ -130,7 +121,7 @@ export function LoginClient({ callbackUrl }: { callbackUrl?: string }) {
         type="login"
         fields={loginFields}
         onSubmit={handleLoginSubmit}
-        submitButtonText="Login"
+        submitButtonText={loginMutation.status === "pending" ? "Logging in..." : "Login"}
         footerText="Don't have an account?"
         footerLinkText="Sign up"
         footerLinkHref="/auth/signup"

@@ -1,6 +1,8 @@
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
-import { store } from "@/lib/redux/store";
-import { logout as logoutAction } from "./redux/features/auth/authSlice";
+
+// Create custom events for auth flow
+export const authRefreshFailedEvent = new CustomEvent("auth:refresh-failed");
+export const apiUnauthorizedEvent = new CustomEvent("auth:api-unauthorized");
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -12,7 +14,7 @@ const api = axios.create({
   },
 });
 
-// prevent multiple simultaneous refresh calls
+// Prevent multiple simultaneous refresh calls
 let isRefreshing = false;
 let failedQueue: Array<{
   resolve: (value?: any) => void;
@@ -53,6 +55,17 @@ api.interceptors.response.use(
       url.includes("/refresh");
 
     originalRequest._pathIsAuthRelated = isAuthRelated;
+
+    // For auth-related paths that return 401, dispatch refresh failed event
+    if (error.response?.status === 401 && isAuthRelated) {
+      // This is from an auth endpoint (like refresh token), so we are truly logged out
+      if (!hasLoggedOut) {
+        hasLoggedOut = true;
+        document.dispatchEvent(authRefreshFailedEvent);
+        resetLogoutFlag();
+      }
+      return Promise.reject(error);
+    }
 
     // Only handle 401 once for non-auth-related requests
     if (
@@ -101,8 +114,8 @@ api.interceptors.response.use(
           // Set the flag to prevent infinite loops
           hasLoggedOut = true;
 
-          // if refresh failed, dispatch logout action
-          store.dispatch(logoutAction());
+          // Dispatch the API unauthorized event
+          document.dispatchEvent(apiUnauthorizedEvent);
 
           // Reset the flag after some time
           resetLogoutFlag();
@@ -111,6 +124,20 @@ api.interceptors.response.use(
         }
       } finally {
         isRefreshing = false;
+      }
+    }
+
+    // If we already tried refreshing and still got 401, dispatch unauthorized event
+    if (
+      error.response?.status === 401 &&
+      originalRequest._retry &&
+      !originalRequest._pathIsAuthRelated
+    ) {
+      // Only dispatch if we haven't logged out yet
+      if (!hasLoggedOut) {
+        hasLoggedOut = true;
+        document.dispatchEvent(apiUnauthorizedEvent);
+        resetLogoutFlag();
       }
     }
 

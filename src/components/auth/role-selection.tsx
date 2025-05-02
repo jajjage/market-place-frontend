@@ -15,11 +15,11 @@ interface RoleSelectionProps {
     errors?: FormErrors;
     message?: string;
   }>;
+  isSubmitting?: boolean;
 }
 
-export function RoleSelection({ onSelectRole }: RoleSelectionProps) {
+export function RoleSelection({ onSelectRole, isSubmitting }: RoleSelectionProps) {
   const [selectedRole, setSelectedRole] = useState<"BUYER" | "SELLER" | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async () => {
@@ -28,7 +28,6 @@ export function RoleSelection({ onSelectRole }: RoleSelectionProps) {
       return;
     }
 
-    setIsSubmitting(true);
     setError(null);
 
     try {
@@ -40,7 +39,8 @@ export function RoleSelection({ onSelectRole }: RoleSelectionProps) {
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");
     } finally {
-      setIsSubmitting(false);
+      // Reset the selected role after submission
+      setSelectedRole(null);
     }
   };
 

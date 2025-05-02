@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAuth } from "@/lib/hooks/use-auth";
+import { useGoogleAuth as googleAuth, useUpdateCurrentUser } from "@/lib/hooks/use-auth";
 import { useRouter } from "next/navigation";
+import { User } from "@/types/user";
 
 interface HandleRoleSelectResult {
   success: boolean;
@@ -22,12 +23,13 @@ interface UseGoogleAuthParams {
 
 export function useGoogleAuth({ state, code }: UseGoogleAuthParams) {
   const router: RouterType = useRouter();
-  const { googleAuth, updateUserRole } = useAuth();
+  const googleMutation = googleAuth();
+  const updateUserMutation = useUpdateCurrentUser();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showRoleSelection, setShowRoleSelection] = useState(false);
   const [authAttempted, setAuthAttempted] = useState(false);
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState<User | null>(null);
 
   // Get the auth mode from localStorage (login or signup)
   const authMode =
@@ -82,20 +84,26 @@ export function useGoogleAuth({ state, code }: UseGoogleAuthParams) {
     try {
       console.log("Processing Google auth with mode:", authMode);
 
+      // Define the expected response type
+      type GoogleAuthResponse = User & {
+        payload?: { message?: string };
+        user_type?: string;
+      };
+
       // Call your service to authenticate with Google
-      const response = await googleAuth(state, code);
+      const response = (await googleMutation.mutateAsync({ state, code })) as GoogleAuthResponse;
       console.log("Google auth response:", response);
 
       // Clear URL parameters after processing to prevent reuse
       clearAuthParams();
 
       // Check if user exists and has a role
-      if (response.meta.requestStatus === "fulfilled") {
-        setUserData((response.payload as { data: typeof userData }).data);
+      if (response) {
+        setUserData(response);
 
         // If user has a role, redirect to the appropriate dashboard
-        const payload = response.payload as { user_type?: string };
-        const userType = payload.user_type;
+        const userType = response.user_type;
+        console.log("User type from payload:", userType);
 
         console.log("User payload user_type:", userType);
 
@@ -121,8 +129,11 @@ export function useGoogleAuth({ state, code }: UseGoogleAuthParams) {
         setShowRoleSelection(true);
         setIsLoading(false);
       } else {
-        console.error("Authentication rejected:", response.payload);
-        setError(response.payload?.message || "Authentication failed. Please try again.");
+        console.error("Authentication rejected:", (response as GoogleAuthResponse)?.payload);
+        setError(
+          (response as GoogleAuthResponse)?.payload?.message ||
+            "Authentication failed. Please try again."
+        );
         setIsLoading(false);
       }
     } catch (error) {
@@ -144,18 +155,24 @@ export function useGoogleAuth({ state, code }: UseGoogleAuthParams) {
 
     try {
       console.log("Selecting role:", role);
+      // Define the expected response type
+      type GoogleAuthResponse = User & {
+        payload?: { message?: string };
+        user_type?: string;
+      };
 
       // Call your service to complete the signup with the selected role
-      const response = await updateUserRole(role);
+      const response = (await updateUserMutation.mutateAsync({
+        user_type: role,
+      })) as GoogleAuthResponse;
       console.log("Role selection response:", response);
 
       // Check if user exists and has a role
-      if (response.meta.requestStatus === "fulfilled") {
-        setUserData((response.payload as { data: typeof userData }).data);
+      if (response) {
+        setUserData((response as User) || null);
 
         // If user has a role, redirect to the appropriate dashboard
-        const payload = response.payload as { user_type?: string };
-        const userType = payload.user_type;
+        const userType = response.user_type;
 
         if (userType) {
           console.log("User has role, redirecting to dashboard:", userType);
@@ -175,11 +192,12 @@ export function useGoogleAuth({ state, code }: UseGoogleAuthParams) {
         console.log("User exists but has no role, showing role selection");
         setIsLoading(false);
       } else {
-        console.error("Role update rejected:", response.payload);
+        // Handle case where user doesn't exist or role selection failed
+
+        console.error("Role update rejected:", (response as GoogleAuthResponse)?.payload);
         throw new Error(
-          response.payload && typeof response.payload === "object" && "message" in response.payload
-            ? (response.payload as { message: string }).message
-            : "Failed to update role"
+          (response as GoogleAuthResponse)?.payload?.message ||
+            "Failed to update role. Please try again."
         );
       }
 
