@@ -12,13 +12,55 @@ import type {
   ResetPasswordConfirmParams,
   UserLogin,
 } from "@/types/user";
+import { useAppSelector } from "../redux/store";
 
 // Query hook to fetch the current user
-export function useCurrentUser() {
+export function useCurrentUser(p0: { enabled: boolean }) {
+  const queryClient = useQueryClient();
+
+  // Default to NOT auto-fetching unless specifically enabled
+  const queryOptions = {
+    enabled: p0.enabled, // Use the enabled parameter
+    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+    retry: (failureCount: number, error: { status: number }) => {
+      // Don't retry on 401 errors
+      if (error?.status === 401) {
+        // Clear the cache on auth errors
+        queryClient.setQueryData(["currentUser"], null);
+        return false;
+      }
+      // Retry other errors up to 2 times
+      return failureCount < 2;
+    },
+  };
+
   return useQuery({
     queryKey: ["currentUser"],
-    queryFn: () => userService.getCurrentUser(),
-    // Optional: Add retry, staleTime, etc., as needed
+    queryFn: async () => {
+      try {
+        const response = await userService.getCurrentUser();
+        // If successful, we are authenticated
+        localStorage.setItem("isAuthenticated", "true");
+        return response;
+      } catch (error) {
+        // If 401, we're definitely not authenticated
+        if (
+          typeof error === "object" &&
+          error !== null &&
+          "response" in error &&
+          typeof (error as any).response === "object" &&
+          (error as any).response !== null &&
+          "status" in (error as any).response &&
+          (error as any).response.status === 401
+        ) {
+          localStorage.removeItem("isAuthenticated");
+          // Re-throw with status for retry logic
+          throw { ...error, status: 401 };
+        }
+        throw error;
+      }
+    },
+    ...queryOptions,
   });
 }
 
@@ -70,6 +112,8 @@ export function useLogin() {
       userService.userLogin(credentials),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+      // On successful login, set our client-side indicator
+      localStorage.setItem("isAuthenticated", "true");
     },
   });
 }
@@ -106,6 +150,11 @@ export function useLogout() {
     mutationFn: () => userService.logout(),
     onSuccess: () => {
       queryClient.removeQueries({ queryKey: ["currentUser"] });
+      // Always clean up client-side state regardless of API success
+      localStorage.removeItem("isAuthenticated");
+
+      // Clear the React Query cache
+      queryClient.setQueryData(["currentUser"], null);
     },
   });
 }
