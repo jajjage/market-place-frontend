@@ -61,7 +61,7 @@ export default function GoogleAuthClient({ state, code }: Props) {
   }
 
   if (showRoleSelection) {
-    return <RoleSelectionWrapper userData={userData ?? {}} onSelectRole={handleRoleSelect} />;
+    return <RoleSelectionWrapper userData={userData || {}} onSelectRole={handleRoleSelect} />;
   }
 
   return null;

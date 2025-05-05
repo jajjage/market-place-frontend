@@ -29,7 +29,7 @@ export function useGoogleAuth({ state, code }: UseGoogleAuthParams) {
   const [error, setError] = useState<string | null>(null);
   const [showRoleSelection, setShowRoleSelection] = useState(false);
   const [authAttempted, setAuthAttempted] = useState(false);
-  const [userData, setUserData] = useState<User | null>(null);
+  const [userData, setUserData] = useState<User | {}>({});
 
   // Get the auth mode from localStorage (login or signup)
   const authMode =
@@ -88,24 +88,24 @@ export function useGoogleAuth({ state, code }: UseGoogleAuthParams) {
       type GoogleAuthResponse = User & {
         payload?: { message?: string };
         user_type?: string;
+        status: string;
+        data: User;
       };
 
       // Call your service to authenticate with Google
       const response = (await googleMutation.mutateAsync({ state, code })) as GoogleAuthResponse;
-      console.log("Google auth response:", response);
+      console.log("Google auth response:", response.data);
 
       // Clear URL parameters after processing to prevent reuse
       clearAuthParams();
 
       // Check if user exists and has a role
-      if (response) {
-        setUserData(response);
+      if (response.status === "success") {
+        setUserData((response.data as User) || null);
 
         // If user has a role, redirect to the appropriate dashboard
-        const userType = response.user_type;
+        const userType = response.data.user_type;
         console.log("User type from payload:", userType);
-
-        console.log("User payload user_type:", userType);
 
         if (userType) {
           console.log("User has role, redirecting to dashboard:", userType);

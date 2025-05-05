@@ -114,13 +114,18 @@ api.interceptors.response.use(
           // Set the flag to prevent infinite loops
           hasLoggedOut = true;
 
-          // Dispatch the API unauthorized event
+          // If the refresh request fails, user is definitely logged out
+          localStorage.removeItem("isAuthenticated");
+
+          // Dispatch events to notify the app
+          console.log("Dispatching auth failure events");
+          document.dispatchEvent(authRefreshFailedEvent);
           document.dispatchEvent(apiUnauthorizedEvent);
 
           // Reset the flag after some time
           resetLogoutFlag();
 
-          return Promise.reject(refreshErr);
+          return Promise.reject({ error: refreshErr, isAuthError: true });
         }
       } finally {
         isRefreshing = false;
@@ -145,5 +150,11 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// Function to check if we think we're authenticated
+// Without being able to directly check HTTP-only cookies
+export const checkIsAuthenticated = () => {
+  return localStorage.getItem("isAuthenticated") === "true";
+};
 
 export default api;

@@ -12,7 +12,12 @@ import type {
   ResetPasswordConfirmParams,
   UserLogin,
 } from "@/types/user";
-import { useAppSelector } from "../redux/store";
+
+type GoogleAuthResponse = {
+  status: string;
+  message: string;
+  data: User;
+};
 
 // Query hook to fetch the current user
 export function useCurrentUser(p0: { enabled: boolean }) {
@@ -88,8 +93,8 @@ export function useGoogleAuth() {
       const response = await userService.googleAuth(state, code, user_type);
       return response.data;
     },
-    onSuccess: (user: User) => {
-      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+    onSuccess: (data: User) => {
+      queryClient.setQueryData(["currentUser"], data);
     },
     onError: (error: any) => {
       console.error("Google Auth error:", error);
@@ -154,7 +159,7 @@ export function useLogout() {
       localStorage.removeItem("isAuthenticated");
 
       // Clear the React Query cache
-      queryClient.setQueryData(["currentUser"], null);
+      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
     },
   });
 }
