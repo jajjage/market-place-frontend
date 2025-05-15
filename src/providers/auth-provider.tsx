@@ -1,73 +1,62 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useCurrentUser, useLogout } from "@/lib/hooks/use-auth";
-import { setUser } from "@/lib/redux/features/auth/authSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store";
 import { authRefreshFailedEvent, apiUnauthorizedEvent } from "@/lib/api";
 
 export function AuthInitializer() {
-  const {
-    data: userData,
-    isSuccess,
-    isError,
-    error,
-    refetch,
-  } = useCurrentUser({
-    // Disable auto-fetching
-    enabled: false,
-  });
   const logout = useLogout();
   const dispatch = useAppDispatch();
   const authState = useAppSelector((state) => state.auth);
-  const [isAuthenticated, setIsAuthenticated] = useState(() =>
-    typeof window !== "undefined" ? localStorage.getItem("isAuthenticated") === "true" : false
-  );
 
-  // Main auth effect: handle authentication state and events
+  const { refetch } = useCurrentUser({
+    // Disable automatic fetching - we'll control it manually
+    enabled: false,
+  });
+
+  // Handle initial authentication check - runs only once on mount
   useEffect(() => {
-    // Initial auth check function
-    const checkAuth = () => {
-      if (authState.user || isAuthenticated) {
-        console.log("Auth state indicates logged in, checking user data");
-        refetch().catch((err) => {
-          if (err?.status === 401) {
-            handleUnauthenticated();
-          }
-        });
+    // Initial check function - this only runs once
+    const initialAuthCheck = async () => {
+      // Check if we have local storage flag set but no user data yet
+      const isStoredAuthenticated = localStorage.getItem("isAuthenticated") === "true";
+
+      if (
+        isStoredAuthenticated &&
+        !authState.user &&
+        !authState.isLoading &&
+        !authState.lastChecked
+      ) {
+        // We think we're authenticated based on localStorage, but need to verify
+        console.log("AuthInitializer: Performing initial auth verification");
+        try {
+          await refetch();
+        } catch (err) {
+          // Error handled in useCurrentUser hook
+          console.log("AuthInitializer: Initial auth check failed", err);
+        }
       }
     };
 
-    // Handle unauthorized state consistently
-    const handleUnauthenticated = () => {
-      console.log("User unauthorized, clearing auth state");
-      dispatch(setUser(null));
-      localStorage.removeItem("isAuthenticated");
-      setIsAuthenticated(false);
-    };
+    initialAuthCheck();
+  }, []); // Empty dependency array - only run on mount
 
-    // Auth event handlers
+  // Auth event listeners - separate from auth check logic
+  useEffect(() => {
+    // Handler for refresh token failure
     const handleRefreshFailed = () => {
-      console.log("Token refresh failed event received, logging out");
+      console.log("AuthInitializer: Token refresh failed event received");
       logout.mutate();
-      handleUnauthenticated();
     };
+
+    // Handler for API unauthorized responses
     const handleApiUnauthorized = () => {
-      console.log("API unauthorized event received, logging out");
+      console.log("AuthInitializer: API unauthorized event received");
       logout.mutate();
-      handleUnauthenticated();
     };
 
-    const handleRouteChange = () => {
-      console.log("Route changed, checking auth if needed");
-      checkAuth();
-    };
-
-    // Initial auth check on component mount
-    checkAuth();
-
-    // Setup event listeners
+    // Setup event listeners for auth-related events
     if (typeof window !== "undefined") {
-      window.addEventListener("popstate", handleRouteChange);
       document.addEventListener(
         authRefreshFailedEvent?.type || "auth:refresh-failed",
         handleRefreshFailed
@@ -78,10 +67,9 @@ export function AuthInitializer() {
       );
     }
 
-    // Cleanup event listeners
+    // Cleanup event listeners on unmount
     return () => {
       if (typeof window !== "undefined") {
-        window.removeEventListener("popstate", handleRouteChange);
         document.removeEventListener(
           authRefreshFailedEvent?.type || "auth:refresh-failed",
           handleRefreshFailed
@@ -92,22 +80,7 @@ export function AuthInitializer() {
         );
       }
     };
-  }, [authState.user, isAuthenticated, refetch, logout, dispatch]);
-
-  // Handle user data changes
-  useEffect(() => {
-    if (isSuccess && userData) {
-      console.log("User data fetched successfully, updating state");
-      dispatch(setUser(userData));
-      localStorage.setItem("isAuthenticated", "true");
-      setIsAuthenticated(true);
-    } else if (isError && error?.status === 401) {
-      console.log("User fetch failed with 401, clearing user state");
-      dispatch(setUser(null));
-      localStorage.removeItem("isAuthenticated");
-      setIsAuthenticated(false);
-    }
-  }, [isSuccess, userData, isError, error, dispatch]);
+  }, [logout]); // Only depends on logout mutation
 
   return null;
 }

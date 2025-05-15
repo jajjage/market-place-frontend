@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { jwtVerify } from "jose";
+
 
 // This is a simple middleware to handle authentication
 // You would replace this with your own authentication implementation
@@ -8,34 +8,24 @@ import { jwtVerify } from "jose";
 export async function middleware(request: NextRequest) {
   // Check if the request is for a specific path
   const { pathname } = request.nextUrl;
-  const accessToken = request.cookies.get("access_token")?.value;
-  const refreshToken = request.cookies.get("refresh_token")?.value;
+  const token = request.cookies.get("access_token")?.value
+  const refresh = request.cookies.get("refresh_token")?.value
 
-  // let isAuthenticated = false
-
-  // if (accessToken) {
-  //   try {
-  //     // Use your JWT secret here - in production use environment variables
-  //     const secret = new TextEncoder().encode(process.env.JWT_SECRET)
-
-  //     await jwtVerify(accessToken, secret)
-  //     isAuthenticated = true
-
-  //   } catch (error) {
-  //     // Token invalid or expired
-  //     isAuthenticated = false
-  //   }
-  // }
+  // console.log(!token)
 
   // Define routes that don't require authentication
   const publicRoutes = [
-    "auth/login",
-    "auth/signup",
-    "/auth/google",
-    "/api/auth/google/*",
-    "/password-reset",
+    '/',
+    '/auth/login',
+    '/auth/signup',
+    '/auth/google',
+    '/api/auth/google/*',
+    '/password-reset',
   ];
-  const isPublicRoute = publicRoutes.some((route) => pathname.includes(route));
+
+  const isPublicRoute = pathname === '/' || publicRoutes.some((route) =>
+    route !== '/' && (pathname === route || pathname.startsWith('/' + route))
+  );
 
   const staticAssets = [
     "/_next/",
@@ -58,15 +48,9 @@ export async function middleware(request: NextRequest) {
   if (isStaticAsset) {
     return NextResponse.next();
   }
-  // If no access token but has refresh token, allow the request
-  // Client-side code will handle the refresh
-  if (!accessToken && refreshToken) {
-    // Let the request proceed - client will handle refresh
-    return NextResponse.next();
-  }
 
   // Regular auth flow for other cases
-  if (!accessToken && !refreshToken && !isPublicRoute) {
+  if (!token && !refresh && !isPublicRoute) {
     const url = new URL("/auth/login", request.url);
     url.searchParams.set("callbackUrl", encodeURI(pathname));
     return NextResponse.redirect(url);

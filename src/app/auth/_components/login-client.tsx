@@ -63,6 +63,8 @@ export function LoginClient({ callbackUrl }: { callbackUrl?: string }) {
     try {
       await loginMutation.mutateAsync({ email, password });
 
+      // dispatch(setUser(user));
+
       // Get the callback URL from the search params
       const searchParams = new URLSearchParams(window.location.search);
       const redirectUrl = searchParams.get("callbackUrl") || "/dashboard";

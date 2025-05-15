@@ -1,24 +1,50 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { AuthState } from "@/types/auth.types";
+import { User } from "@/types/user";
 
 const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
+  isLoading: false,
+  lastChecked: null,
 };
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setUser: (state, action) => {
+    // Set user information and authentication state
+    setUser: (state, action: PayloadAction<User | null>) => {
       state.user = action.payload;
       state.isAuthenticated = !!action.payload;
+      state.isLoading = false;
+      state.lastChecked = Date.now();
     },
-    setAuth: (state) => {
-      state.isAuthenticated = true;
+
+    // Set loading state
+    setAuthLoading: (state, action: PayloadAction<boolean>) => {
+      state.isLoading = action.payload;
+    },
+
+    // Clear authentication state on logout
+    clearAuth: (state) => {
+      state.user = null;
+      state.isAuthenticated = false;
+      state.isLoading = false;
+      state.lastChecked = Date.now();
+    },
+
+    // Update specific user fields without replacing the entire user object
+    updateUserField: (state, action: PayloadAction<{ field: string; value: any }>) => {
+      if (state.user) {
+        state.user = {
+          ...state.user,
+          [action.payload.field]: action.payload.value,
+        };
+      }
     },
   },
 });
 
-export const { setUser, setAuth } = authSlice.actions;
+export const { setUser, setAuthLoading, clearAuth, updateUserField } = authSlice.actions;
 export default authSlice.reducer;
