@@ -15,7 +15,6 @@ import type {
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store";
 import { setUser, setAuthLoading, clearAuth } from "@/lib/redux/features/auth/authSlice";
 
-
 type GoogleAuthResponse = {
   status: string;
   message: string;
@@ -37,9 +36,9 @@ export function useCurrentUser(options = { enabled: true }) {
     retry: (failureCount: number, error: { status?: number }) => {
       // Don't retry on 401 errors
       if (error?.status === 401) {
-      // Clear the cache on auth errors
-      queryClient.setQueryData(["currentUser"], null);
-      return false;
+        // Clear the cache on auth errors
+        queryClient.setQueryData(["currentUser"], null);
+        return false;
       }
       // Retry other errors up to 2 times
       return failureCount < 2;
@@ -48,7 +47,7 @@ export function useCurrentUser(options = { enabled: true }) {
       // Sync successful user data with Redux
       dispatch(setUser(data));
     },
-    onError: (error: { status: number; }) => {
+    onError: (error: { status: number }) => {
       // Clear auth state on auth errors
       if (error?.status === 401) {
         dispatch(clearAuth());
@@ -103,11 +102,9 @@ export function useLogin() {
       return await userService.userLogin(credentials);
     },
     onSuccess: (data) => {
-      // Update Redux state
-      dispatch(setUser(data));
 
       // Invalidate queries that may depend on authentication
-      queryClient.invalidateQueries({queryKey: ["currentUser"]});
+      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
 
       // Set authentication flag
       localStorage.setItem("isAuthenticated", "true");
@@ -154,7 +151,6 @@ export function useLogout() {
   });
 }
 
-
 // Mutation hook for registering a new user
 export function useRegister() {
   const queryClient = useQueryClient();
@@ -163,9 +159,11 @@ export function useRegister() {
   });
 }
 
-// Mutation hook for Google OAuth authentication
+// Improved Google OAuth authentication hook that properly syncs with Redux and forces a refetch
 export function useGoogleAuth() {
   const queryClient = useQueryClient();
+  const dispatch = useAppDispatch();
+
   return useMutation({
     mutationFn: async ({
       state,
@@ -176,14 +174,53 @@ export function useGoogleAuth() {
       code: string;
       user_type?: string;
     }) => {
-      const response = await userService.googleAuth(state, code, user_type);
-      return response.data;
+      dispatch(setAuthLoading(true));
+      try {
+        const response = await userService.googleAuth(state, code, user_type);
+        return response.data;
+      } finally {
+        dispatch(setAuthLoading(false));
+      }
     },
-    onSuccess: (data: User) => {
-      queryClient.invalidateQueries({ queryKey: ["currentUser"], refetchType: "all" });
+
+    onSuccess: async (data: User) => {
+      // 1. Update localStorage to indicate authenticated state
+      localStorage.setItem("isAuthenticated", "true");
+
+      // 3. Force a fresh fetch of current user data
+      try {
+        // Remove existing user data from cache to ensure a fresh fetch
+        queryClient.removeQueries({ queryKey: ["currentUser"] });
+
+        // Manually fetch fresh user data
+        const userData = await userService.getCurrentUser();
+
+        // Update Redux state with complete user data
+        dispatch(setUser(userData));
+
+        // Update React Query cache with fresh data
+        queryClient.setQueryData(["currentUser"], userData);
+      } catch (error) {
+        console.error("Failed to fetch user data after Google auth:", error);
+
+        // Fall back to using whatever data we got from the Google auth response
+        if (data && data.id) {
+          dispatch(setUser(data));
+          queryClient.setQueryData(["currentUser"], data);
+        }
+      } finally {
+        // Ensure we clear loading state after everything is done
+        dispatch(setAuthLoading(false));
+      }
     },
+
     onError: (error: any) => {
       console.error("Google Auth error:", error);
+      // Ensure we clear loading state on error
+      dispatch(setAuthLoading(false));
+
+      // Make sure we don't have stale authentication state
+      localStorage.removeItem("isAuthenticated");
     },
   });
 }

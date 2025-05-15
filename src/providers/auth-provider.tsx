@@ -3,43 +3,46 @@ import { useEffect } from "react";
 import { useCurrentUser, useLogout } from "@/lib/hooks/use-auth";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/store";
 import { authRefreshFailedEvent, apiUnauthorizedEvent } from "@/lib/api";
+import { clearAuth, setUser } from "@/lib/redux/features/auth/authSlice";
 
 export function AuthInitializer() {
   const logout = useLogout();
   const dispatch = useAppDispatch();
   const authState = useAppSelector((state) => state.auth);
 
-  const { refetch } = useCurrentUser({
+  const isStoredAuthenticated =
+    typeof window !== "undefined" ? localStorage.getItem("isAuthenticated") === "true" : false;
+  // (using lastChecked to determine if we've already attempted to fetch the user)
+  const shouldFetchUser = isStoredAuthenticated && !authState.lastChecked;
+
+  const { isError,isLoading, data: userData } = useCurrentUser({
     // Disable automatic fetching - we'll control it manually
-    enabled: false,
+    enabled: shouldFetchUser,
   });
 
-  // Handle initial authentication check - runs only once on mount
   useEffect(() => {
-    // Initial check function - this only runs once
-    const initialAuthCheck = async () => {
-      // Check if we have local storage flag set but no user data yet
-      const isStoredAuthenticated = localStorage.getItem("isAuthenticated") === "true";
+    if (userData && !authState.user) {
+      console.log("AuthInitializer: Setting user data in Redux state", userData);
+      dispatch(setUser(userData));
+    }
+  }, [userData, authState.user, dispatch]);
 
-      if (
-        isStoredAuthenticated &&
-        !authState.user &&
-        !authState.isLoading &&
-        !authState.lastChecked
-      ) {
-        // We think we're authenticated based on localStorage, but need to verify
-        console.log("AuthInitializer: Performing initial auth verification");
-        try {
-          await refetch();
-        } catch (err) {
-          // Error handled in useCurrentUser hook
-          console.log("AuthInitializer: Initial auth check failed", err);
-        }
-      }
-    };
+  // Effect to handle the case where we think we're authenticated but no data is found
+  useEffect(() => {
+    if (isStoredAuthenticated && !isLoading && !userData && !authState.user && shouldFetchUser) {
+      console.log("AuthInitializer: No user data found but isAuthenticated is true");
+      localStorage.removeItem("isAuthenticated");
+    }
+  }, [isStoredAuthenticated, isLoading, userData, authState.user, shouldFetchUser]);
 
-    initialAuthCheck();
-  }, []); // Empty dependency array - only run on mount
+  // Handle error case
+  useEffect(() => {
+    if (isError && isStoredAuthenticated) {
+      console.log("AuthInitializer: Error fetching user data");
+      localStorage.removeItem("isAuthenticated");
+      dispatch(clearAuth());
+    }
+  }, [isError, dispatch, isStoredAuthenticated]);
 
   // Auth event listeners - separate from auth check logic
   useEffect(() => {
