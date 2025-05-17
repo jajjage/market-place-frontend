@@ -12,3 +12,5 @@ export interface userState {
   state: string;
   code: string;
 }
+
+export type UserType = "BUYER" | "SELLER";

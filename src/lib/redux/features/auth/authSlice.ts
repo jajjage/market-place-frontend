@@ -5,7 +5,7 @@ import { User } from "@/types/user";
 
 const initialState: AuthState = {
   user: null,
-  isAuthenticated: false,
+  isAuthenticated: typeof window !== 'undefined' ? localStorage.getItem("isAuthenticated") === "true" : false,
   isLoading: false,
   lastChecked: null,
 };

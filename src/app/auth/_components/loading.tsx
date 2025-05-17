@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 
-export default function LoadingSpinner({}) {
+export default function LoadingSpinner({ showText = true }: { showText?: boolean }) {
   const [dots, setDots] = useState("");
 
   useEffect(() => {
@@ -14,9 +14,9 @@ export default function LoadingSpinner({}) {
   }, []);
 
   return (
-    <div className="flex h-32 flex-col items-center justify-center">
-      <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-gray-300 border-t-blue-500"></div>
-      <p className="text-lg font-medium text-gray-700">Loading{dots}</p>
+    <div className="flex items-center justify-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+      {showText && <p className="ml-3 text-sm font-medium">Loading{dots}</p>}
     </div>
   );
 }

@@ -10,7 +10,6 @@ import type {
   SetPasswordParams,
   ResetPasswordParams,
   ResetPasswordConfirmParams,
-
 } from "@/types/user";
 import { useAppDispatch } from "@/lib/redux/store";
 import { setUser, setAuthLoading, clearAuth } from "@/lib/redux/features/auth/authSlice";
@@ -19,6 +18,10 @@ import { useEffect } from "react";
 export function useCurrentUser(options = { enabled: true }) {
   const dispatch = useAppDispatch();
   const queryClient = useQueryClient();
+
+  // Check if user is authenticated from localStorage
+  const isAuthenticated =
+    typeof window !== "undefined" ? localStorage.getItem("isAuthenticated") === "true" : false;
 
   const query = useQuery({
     queryKey: ["currentUser"],
@@ -44,14 +47,12 @@ export function useCurrentUser(options = { enabled: true }) {
     },
 
     // Configuration for optimal behavior
-    enabled: options.enabled,
+    enabled: options.enabled && isAuthenticated,
     staleTime: 1000 * 60 * 5, // 5 minutes
     retry: (failureCount, error: any) => {
-      // Custom retry logic for auth queries
+      // Don't retry 401s at all as we know we're not authenticated
       const is401 = error?.response?.status === 401;
-
-      // Only retry 401s once to prevent loops
-      if (is401) return failureCount < 1;
+      if (is401) return false;
 
       // Standard retry logic for other errors
       return failureCount < 2;
@@ -59,12 +60,14 @@ export function useCurrentUser(options = { enabled: true }) {
     retryDelay: 1500, // Slightly longer delay to allow token refresh
   });
 
-  // Sync query results with Redux
+  // Sync query results with Redux and handle authentication state
   useEffect(() => {
     if (query.data) {
       dispatch(setUser(query.data));
+      localStorage.setItem("isAuthenticated", "true");
     } else if (query.error) {
       dispatch(clearAuth());
+      localStorage.removeItem("isAuthenticated");
     }
   }, [query.data, query.error, dispatch]);
 

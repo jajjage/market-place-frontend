@@ -1,3 +1,5 @@
+import { Dispute, EscrowTransaction } from "./transaction";
+
 export interface User {
   id: string;
   email: string;
@@ -9,6 +11,9 @@ export interface User {
   store: UserStore | null;
   addresses: UserAddress[];
   received_ratings: UserRating[];
+  disputes: Dispute[];
+  sales: EscrowTransaction[];
+  purchases: EscrowTransaction[];
 }
 
 interface UserProfile {

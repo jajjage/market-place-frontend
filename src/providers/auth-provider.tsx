@@ -10,15 +10,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const lastActivityRef = useRef(Date.now());
   const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Auto-fetch current user data
-  const { refetch: refetchUser } = useCurrentUser();
+  // Auto-fetch current user data only when authenticated
+  const { refetch: refetchUser } = useCurrentUser({
+    enabled: typeof window !== "undefined" && localStorage.getItem("isAuthenticated") === "true",
+  });
 
   // Listen for auth events
   useEffect(() => {
     // Handle token refresh events
     const handleTokenRefreshed = () => {
-      console.log("Token refreshed - updating user data");
-      refetchUser();
+      if (localStorage.getItem("isAuthenticated") === "true") {
+        console.log("Token refreshed - updating user data");
+        refetchUser();
+      }
     };
 
     // Handle unauthorized events (logout)

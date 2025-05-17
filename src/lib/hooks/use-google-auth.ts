@@ -121,7 +121,7 @@ export function useGoogleAuth({ state, code }: UseGoogleAuthParams) {
             return;
           } else {
             // Redirect to the dashboard
-            router.push(userType === "SELLER" ? "/dashboard/seller" : "/dashboard");
+            router.push("/dashboard");
             return;
           }
         }

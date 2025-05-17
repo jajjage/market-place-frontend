@@ -1,76 +1,89 @@
+export type DisputeReason =
+  | "not_as_described"
+  | "not_received"
+  | "damaged"
+  | "wrong_item"
+  | "other";
+
+export type DisputeStatus =
+  | "opened"
+  | "in_review"
+  | "resolved_buyer"
+  | "resolved_seller"
+  | "closed";
+
+export interface EscrowTransaction {
+  id: number;
+  // Add other fields relevant to EscrowTransaction if needed
+}
+
 export interface User {
   id: string;
-  name: string;
   email: string;
-  role: 'buyer' | 'seller' | 'mediator';
-  avatarUrl?: string;
-}
-
-export interface TransactionParty {
-  user: User;
-  role: 'buyer' | 'seller' | 'mediator';
-  hasApproved: boolean;
-  approvedAt?: string;
-}
-
-export interface TransactionEvent {
-  id: string;
-  type: 'created' | 'funded' | 'approved' | 'rejected' | 'disputed' | 'completed';
-  createdAt: string;
-  userId: string;
-  message: string;
-  data?: Record<string, any>;
+  first_name: string;
+  last_name: string;
 }
 
 export interface Dispute {
-  id: string;
-  reason: string;
-  createdAt: string;
-  createdById: string;
-  status: 'pending' | 'in_review' | 'resolved';
-  evidence: Array<{
-    id: string;
-    fileUrl: string;
-    fileType: string;
-    fileName: string;
-    uploadedAt: string;
-  }>;
-  resolution?: {
-    outcome: string;
-    resolvedAt: string;
-    resolvedById: string;
-  };
+  id: number;
+  transaction: EscrowTransaction;
+  opened_by: User;
+  reason: DisputeReason;
+  description: string;
+  status: DisputeStatus;
+  created_at: string; // ISO format date string
+  updated_at: string; // ISO format date string
 }
 
-export interface Transaction {
-  id: string;
-  title: string;
-  description: string;
-  amount: number;
-  currency: string;
-  status: 'draft' | 'pending' | 'funded' | 'active' | 'disputed' | 'completed' | 'cancelled';
-  createdAt: string;
-  updatedAt: string;
-  completedAt?: string;
-  parties: TransactionParty[];
-  events: TransactionEvent[];
-  documents: Array<{
-    id: string;
-    title: string;
-    fileUrl: string;
-    uploadedAt: string;
-    uploadedById: string;
-  }>;
-  terms: string;
-  dispute?: Dispute;
+export type EscrowStatus =
+  | "initiated"
+  | "payment_received"
+  | "shipped"
+  | "delivered"
+  | "inspection"
+  | "disputed"
+  | "completed"
+  | "refunded"
+  | "cancelled"
+  | "funds_released";
+
+export interface Product {
+  id: number;
+  // Include other fields as needed
 }
 
-export interface TransactionCreate {
-  title: string;
-  description: string;
-  amount: number;
-  currency: string;
-  sellerId: string;
-  terms: string;
-  documents?: File[];
+export interface EscrowTransaction {
+  id: number;
+  product: Product;
+  buyer: User;
+  seller: User;
+  amount: string; // Use string for decimal values to avoid precision issues
+  currency: string; // typically "USD" or other ISO currency codes
+
+  status: EscrowStatus;
+
+  tracking_id: string;
+  tracking_number?: string | null;
+  shipping_carrier?: string | null;
+  shipping_address?: string | null;
+
+  inspection_period_days: number;
+  inspection_end_date?: string | null; // ISO timestamp
+
+  price_by_negotiation?: string | null;
+
+  status_changed_at: string; // ISO timestamp
+  is_auto_transition_scheduled: boolean;
+  auto_transition_type?: string | null;
+  next_auto_transition_at?: string | null;
+
+  notes?: string;
+
+  created_at: string; // inherited from BaseModel
+  updated_at: string; // inherited from BaseModel
+
+  // Optional derived values if your frontend needs them
+  is_final_status?: boolean;
+  days_in_current_status?: number;
+  time_until_auto_transition?: string | null;
 }

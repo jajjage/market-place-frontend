@@ -1,9 +1,5 @@
-import React from 'react'
+import UserDashboard from "./_components/user-dashboard";
 
-const dashboard = () => {
-  return (
-    <div>dashboard</div>
-  )
+export default function DashboardPage() {
+  return <UserDashboard />;
 }
-
-export default dashboard
