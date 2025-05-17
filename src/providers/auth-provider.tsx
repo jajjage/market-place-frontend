@@ -1,89 +1,119 @@
 "use client";
-import { useEffect } from "react";
-import { useCurrentUser, useLogout } from "@/lib/hooks/use-auth";
-import { useAppDispatch, useAppSelector } from "@/lib/redux/store";
-import { authRefreshFailedEvent, apiUnauthorizedEvent } from "@/lib/api";
-import { clearAuth, setUser } from "@/lib/redux/features/auth/authSlice";
 
-export function AuthInitializer() {
-  const logout = useLogout();
-  const dispatch = useAppDispatch();
-  const authState = useAppSelector((state) => state.auth);
+import { useEffect, useRef } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useCurrentUser } from "@/lib/hooks/use-auth";
 
-  const isStoredAuthenticated =
-    typeof window !== "undefined" ? localStorage.getItem("isAuthenticated") === "true" : false;
-  // (using lastChecked to determine if we've already attempted to fetch the user)
-  const shouldFetchUser = isStoredAuthenticated && !authState.lastChecked;
+// Simplified AuthProvider that handles token refresh and inactivity
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const queryClient = useQueryClient();
+  const lastActivityRef = useRef(Date.now());
+  const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const { isError,isLoading, data: userData } = useCurrentUser({
-    // Disable automatic fetching - we'll control it manually
-    enabled: shouldFetchUser,
-  });
+  // Auto-fetch current user data
+  const { refetch: refetchUser } = useCurrentUser();
 
+  // Listen for auth events
   useEffect(() => {
-    if (userData && !authState.user) {
-      console.log("AuthInitializer: Setting user data in Redux state", userData);
-      dispatch(setUser(userData));
-    }
-  }, [userData, authState.user, dispatch]);
-
-  // Effect to handle the case where we think we're authenticated but no data is found
-  useEffect(() => {
-    if (isStoredAuthenticated && !isLoading && !userData && !authState.user && shouldFetchUser) {
-      console.log("AuthInitializer: No user data found but isAuthenticated is true");
-      localStorage.removeItem("isAuthenticated");
-    }
-  }, [isStoredAuthenticated, isLoading, userData, authState.user, shouldFetchUser]);
-
-  // Handle error case
-  useEffect(() => {
-    if (isError && isStoredAuthenticated) {
-      console.log("AuthInitializer: Error fetching user data");
-      localStorage.removeItem("isAuthenticated");
-      dispatch(clearAuth());
-    }
-  }, [isError, dispatch, isStoredAuthenticated]);
-
-  // Auth event listeners - separate from auth check logic
-  useEffect(() => {
-    // Handler for refresh token failure
-    const handleRefreshFailed = () => {
-      console.log("AuthInitializer: Token refresh failed event received");
-      logout.mutate();
+    // Handle token refresh events
+    const handleTokenRefreshed = () => {
+      console.log("Token refreshed - updating user data");
+      refetchUser();
     };
 
-    // Handler for API unauthorized responses
-    const handleApiUnauthorized = () => {
-      console.log("AuthInitializer: API unauthorized event received");
-      logout.mutate();
+    // Handle unauthorized events (logout)
+    const handleUnauthorized = () => {
+      console.log("Unauthorized - clearing auth state");
+      localStorage.removeItem("isAuthenticated");
+      queryClient.setQueryData(["currentUser"], null);
     };
 
-    // Setup event listeners for auth-related events
-    if (typeof window !== "undefined") {
-      document.addEventListener(
-        authRefreshFailedEvent?.type || "auth:refresh-failed",
-        handleRefreshFailed
-      );
-      document.addEventListener(
-        apiUnauthorizedEvent?.type || "auth:api-unauthorized",
-        handleApiUnauthorized
-      );
-    }
+    // Add event listeners
+    window.addEventListener("auth:token-refreshed", handleTokenRefreshed);
+    window.addEventListener("auth:unauthorized", handleUnauthorized);
 
-    // Cleanup event listeners on unmount
     return () => {
-      if (typeof window !== "undefined") {
-        document.removeEventListener(
-          authRefreshFailedEvent?.type || "auth:refresh-failed",
-          handleRefreshFailed
-        );
-        document.removeEventListener(
-          apiUnauthorizedEvent?.type || "auth:api-unauthorized",
-          handleApiUnauthorized
-        );
+      // Remove event listeners on cleanup
+      window.removeEventListener("auth:token-refreshed", handleTokenRefreshed);
+      window.removeEventListener("auth:unauthorized", handleUnauthorized);
+    };
+  }, [queryClient, refetchUser]);
+
+  // Track user activity to handle token refresh before expiration
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    // Update last activity timestamp on user interaction
+    const updateActivity = () => {
+      lastActivityRef.current = Date.now();
+      resetInactivityTimer();
+    };
+
+    // Reset inactivity timer
+    const resetInactivityTimer = () => {
+      if (inactivityTimerRef.current) {
+        clearTimeout(inactivityTimerRef.current);
+      }
+
+      // Only set timer if user is authenticated
+      if (localStorage.getItem("isAuthenticated") === "true") {
+        inactivityTimerRef.current = setTimeout(
+          () => {
+            const currentTime = Date.now();
+            const inactiveTime = currentTime - lastActivityRef.current;
+
+            // If inactive for more than 10 minutes, proactively refresh user data
+            // This helps prevent the token from expiring without notice
+            if (inactiveTime > 1000 * 60 * 10) {
+              console.log("User inactive, proactively refreshing auth state");
+              refetchUser();
+            }
+          },
+          1000 * 60 * 10
+        ); // Check every 10 minutes
       }
     };
-  }, [logout]); // Only depends on logout mutation
 
-  return null;
+    // Set up activity listeners
+    const events = ["mousedown", "keypress", "scroll", "touchstart", "visibilitychange"];
+    events.forEach((event) => {
+      window.addEventListener(event, updateActivity);
+    });
+
+    // Also check when page becomes visible again
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        const currentTime = Date.now();
+        const inactiveTime = currentTime - lastActivityRef.current;
+
+        // If page was hidden for more than 5 minutes, refresh user data
+        if (inactiveTime > 1000 * 60 * 5) {
+          console.log("Page visible after inactivity, refreshing auth state");
+          refetchUser();
+        }
+
+        lastActivityRef.current = currentTime;
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // Initial setup
+    resetInactivityTimer();
+
+    return () => {
+      // Cleanup
+      events.forEach((event) => {
+        window.removeEventListener(event, updateActivity);
+      });
+
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+
+      if (inactivityTimerRef.current) {
+        clearTimeout(inactivityTimerRef.current);
+      }
+    };
+  }, [refetchUser]);
+
+  return <>{children}</>;
 }

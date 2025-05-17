@@ -10,88 +10,68 @@ import type {
   SetPasswordParams,
   ResetPasswordParams,
   ResetPasswordConfirmParams,
-  UserLogin,
+
 } from "@/types/user";
-import { useAppDispatch, useAppSelector } from "@/lib/redux/store";
+import { useAppDispatch } from "@/lib/redux/store";
 import { setUser, setAuthLoading, clearAuth } from "@/lib/redux/features/auth/authSlice";
+import { useEffect } from "react";
 
-type GoogleAuthResponse = {
-  status: string;
-  message: string;
-  data: User;
-};
-
-// Query hook to fetch the current user
 export function useCurrentUser(options = { enabled: true }) {
-  const queryClient = useQueryClient();
   const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
 
-  // Default options for react-query
-  const queryOptions = {
-    enabled: options.enabled,
-    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
-    cacheTime: 10 * 60 * 1000, // Cache for 10 minutes
-    refetchOnWindowFocus: false, // Don't refetch on window focus
-    refetchOnMount: false, // Be careful with automatic refetching
-    retry: (failureCount: number, error: { status?: number }) => {
-      // Don't retry on 401 errors
-      if (error?.status === 401) {
-        // Clear the cache on auth errors
-        queryClient.setQueryData(["currentUser"], null);
-        return false;
-      }
-      // Retry other errors up to 2 times
-      return failureCount < 2;
-    },
-    onSuccess: (data: User) => {
-      // Sync successful user data with Redux
-      dispatch(setUser(data));
-    },
-    onError: (error: { status: number }) => {
-      // Clear auth state on auth errors
-      if (error?.status === 401) {
-        dispatch(clearAuth());
-      }
-    },
-  };
-
-  // Use a query key that doesn't change frequently to prevent unnecessary requests
-  return useQuery({
+  const query = useQuery({
     queryKey: ["currentUser"],
-    queryFn: async () => {
-      // Set loading state in Redux
-      dispatch(setAuthLoading(true));
 
+    queryFn: async () => {
+      dispatch(setAuthLoading(true));
       try {
-        // Add cache-busting parameter to prevent browsers from caching the request
         const response = await userService.getCurrentUser();
+
+        // Update auth state in localStorage
+        localStorage.setItem("isAuthenticated", "true");
+
         return response;
-      } catch (error) {
-        // Handle 401 unauthorized errors
-        if (
-          typeof error === "object" &&
-          error !== null &&
-          "response" in error &&
-          typeof error.response === "object" &&
-          error.response !== null &&
-          "status" in error.response &&
-          error.response.status === 401
-        ) {
+      } catch (error: any) {
+        // Clear auth state on 401 errors
+        if (error?.response?.status === 401) {
           localStorage.removeItem("isAuthenticated");
-          // Re-throw with status for retry logic
-          throw { ...error, status: 401 };
         }
         throw error;
       } finally {
-        // Clear loading state regardless of outcome
         dispatch(setAuthLoading(false));
       }
     },
-    ...queryOptions,
+
+    // Configuration for optimal behavior
+    enabled: options.enabled,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    retry: (failureCount, error: any) => {
+      // Custom retry logic for auth queries
+      const is401 = error?.response?.status === 401;
+
+      // Only retry 401s once to prevent loops
+      if (is401) return failureCount < 1;
+
+      // Standard retry logic for other errors
+      return failureCount < 2;
+    },
+    retryDelay: 1500, // Slightly longer delay to allow token refresh
   });
+
+  // Sync query results with Redux
+  useEffect(() => {
+    if (query.data) {
+      dispatch(setUser(query.data));
+    } else if (query.error) {
+      dispatch(clearAuth());
+    }
+  }, [query.data, query.error, dispatch]);
+
+  return query;
 }
 
-// Hook for login functionality
+// Optimized login hook
 export function useLogin() {
   const queryClient = useQueryClient();
   const dispatch = useAppDispatch();
@@ -101,27 +81,29 @@ export function useLogin() {
       dispatch(setAuthLoading(true));
       return await userService.userLogin(credentials);
     },
+
     onSuccess: (data) => {
-
-      // Invalidate queries that may depend on authentication
-      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
-
-      // Set authentication flag
+      // Set auth state
       localStorage.setItem("isAuthenticated", "true");
+
+      // Force refresh of user data
+      queryClient.refetchQueries({ queryKey: ["currentUser"] });
 
       return data;
     },
-    onError: (error) => {
+
+    onError: () => {
       dispatch(clearAuth());
-      return error;
+      localStorage.removeItem("isAuthenticated");
     },
+
     onSettled: () => {
       dispatch(setAuthLoading(false));
     },
   });
 }
 
-// Hook for logout functionality
+// Simplified logout hook
 export function useLogout() {
   const queryClient = useQueryClient();
   const dispatch = useAppDispatch();
@@ -130,22 +112,21 @@ export function useLogout() {
     mutationFn: async () => {
       return await userService.logout();
     },
+
     onSuccess: () => {
-      // Clear user data from React Query cache
-      queryClient.setQueryData(["currentUser"], null);
-
-      // Clear Redux auth state
+      // Clear auth state
       dispatch(clearAuth());
-
-      // Remove authentication flag
       localStorage.removeItem("isAuthenticated");
 
-      // Invalidate any other authenticated queries
+      // Update query cache but don't remove entry
+      queryClient.setQueryData(["currentUser"], null);
       queryClient.invalidateQueries();
     },
+
     onError: () => {
-      // Even on error, we should clear local state
+      // Even on error, clear local state
       dispatch(clearAuth());
+      localStorage.removeItem("isAuthenticated");
       queryClient.setQueryData(["currentUser"], null);
     },
   });

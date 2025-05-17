@@ -1,9 +1,4 @@
-"use client";
 
-/**
- * Utility function to debug OAuth issues
- * Call this in your component to log important debugging information
- */
 export function debugOAuthFlow() {
   console.log("=== OAuth Flow Debugging ===");
 

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "../styles/globals.css";
 import { ReduxProvider } from "@/lib/redux/ReduxProvider";
-import { AuthInitializer } from "@/providers/auth-provider";
+import { AuthProvider } from "@/providers/auth-provider";
 import { QueryProvider } from "@/providers/query-provider";
 
 const geistSans = localFont({
@@ -31,8 +31,9 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ReduxProvider>
           <QueryProvider>
-            <AuthInitializer />
-            {children}
+            <AuthProvider>
+              {children}
+            </AuthProvider>
           </QueryProvider>
         </ReduxProvider>
       </body>
