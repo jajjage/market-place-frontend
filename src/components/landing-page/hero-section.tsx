@@ -1,5 +1,6 @@
 import { ArrowRight, BarChart3, CheckCircle, Shield, Users } from "lucide-react";
 import { StatCard } from "./small-comp";
+import Link from "next/link";
 
 type StatsProps = {
   stats: {
@@ -9,7 +10,6 @@ type StatsProps = {
     successRate: number;
   };
 };
-
 
 export function HeroSection({ stats }: StatsProps) {
   return (
@@ -34,14 +34,19 @@ export function HeroSection({ stats }: StatsProps) {
               Protecting buyers and sellers with bank-level security and transparent escrow
               solutions.
             </p>
-            <div className="flex flex-col gap-4 pt-4 sm:flex-row">
-              <button className="flex transform items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-3 font-medium text-white transition hover:scale-105 hover:shadow-lg">
-                Get Started
-                <ArrowRight className="ml-2" size={18} />
-              </button>
-              <button className="rounded-full border-2 border-blue-600 px-8 py-3 font-medium text-blue-600 transition hover:bg-blue-50">
-                Learn More
-              </button>
+            <div className="flex flex-col gap-4 pt-4 sm:flex-row sm:items-center">
+              <Link href="/auth/signup">
+                <button className="flex h-12 items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 px-8 font-medium text-white transition-transform hover:scale-105 hover:shadow-lg">
+                  Get Started
+                  <ArrowRight className="ml-2" size={18} />
+                </button>
+              </Link>
+
+              <Link href="/auth/login">
+                <button className="flex h-12 items-center justify-center rounded-full border-2 border-blue-600 px-8 font-medium text-blue-600 transition-colors hover:bg-blue-50">
+                  Learn More
+                </button>
+              </Link>
             </div>
           </div>
 

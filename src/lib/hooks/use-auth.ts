@@ -14,6 +14,7 @@ import type {
 import { useAppDispatch } from "@/lib/redux/store";
 import { setUser, setAuthLoading, clearAuth } from "@/lib/redux/features/auth/authSlice";
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export function useCurrentUser(options = { enabled: true }) {
   const dispatch = useAppDispatch();
@@ -108,6 +109,7 @@ export function useLogin() {
 
 // Simplified logout hook
 export function useLogout() {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const dispatch = useAppDispatch();
 
@@ -115,22 +117,26 @@ export function useLogout() {
     mutationFn: async () => {
       return await userService.logout();
     },
+    onMutate: () => {
+      // Optionally, you can set a loading state here
+      dispatch(setAuthLoading(true));
+    },
 
-    onSuccess: () => {
+    onSuccess: async () => {
       // Clear auth state
       dispatch(clearAuth());
       localStorage.removeItem("isAuthenticated");
 
       // Update query cache but don't remove entry
-      queryClient.setQueryData(["currentUser"], null);
-      queryClient.invalidateQueries();
+      await queryClient.clear();
+      router.replace("/auth/login");
     },
 
     onError: () => {
       // Even on error, clear local state
       dispatch(clearAuth());
       localStorage.removeItem("isAuthenticated");
-      queryClient.setQueryData(["currentUser"], null);
+      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
     },
   });
 }

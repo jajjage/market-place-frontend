@@ -1,14 +1,12 @@
-import {
-  Menu,
-  X,
-} from "lucide-react";
+import { Menu, X } from "lucide-react";
 import React from "react";
 import { Logo, NavLinks } from "./small-comp";
+import Link from "next/link";
 type NavProps = {
-    isMenuOpen: boolean;
-    setIsMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    scrollPosition: number;
-}
+  isMenuOpen: boolean;
+  setIsMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  scrollPosition: number;
+};
 export function Navbar({ isMenuOpen, setIsMenuOpen, scrollPosition }: NavProps) {
   return (
     <header
@@ -22,12 +20,16 @@ export function Navbar({ isMenuOpen, setIsMenuOpen, scrollPosition }: NavProps) 
         <nav className="hidden items-center space-x-8 md:flex">
           <NavLinks />
           <div className="flex items-center space-x-4">
-            <button className="font-medium text-gray-700 transition hover:text-blue-600">
-              Login
-            </button>
-            <button className="transform rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-2 font-medium text-white transition hover:scale-105 hover:shadow-lg">
-              Sign Up
-            </button>
+            <Link href="/auth/login">
+              <button className="font-medium text-gray-700 transition hover:text-blue-600">
+                Login
+              </button>
+            </Link>
+            <Link href="/auth/signup">
+              <button className="transform rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-2 font-medium text-white transition hover:scale-105 hover:shadow-lg">
+                Sign Up
+              </button>
+            </Link>
           </div>
         </nav>
 

@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import "../styles/globals.css";
 import { ReduxProvider } from "@/lib/redux/ReduxProvider";
-import { AuthProvider } from "@/providers/auth-provider";
+import { AuthLifecycleProvider } from "@/providers/auth-lifecycle";
 import { QueryProvider } from "@/providers/query-provider";
 import { ThemeProvider } from "@/components/theme-provider";
-import { AuthProviderContext } from "@/providers/auth-context";
+import { AuthBootstrapProvider } from "@/providers/auth-context";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -21,15 +21,15 @@ export default function RootLayout({
       <body>
         <ThemeProvider
           attribute="class" // adds class="dark" or class="light" to <html>
-          defaultTheme="system"
+          defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >
           <ReduxProvider>
             <QueryProvider>
-              <AuthProviderContext>
-                <AuthProvider>{children}</AuthProvider>
-              </AuthProviderContext>
+              <AuthBootstrapProvider>
+                <AuthLifecycleProvider>{children}</AuthLifecycleProvider>
+              </AuthBootstrapProvider>
             </QueryProvider>
           </ReduxProvider>
         </ThemeProvider>

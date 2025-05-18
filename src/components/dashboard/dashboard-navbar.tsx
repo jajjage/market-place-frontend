@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Menu } from "lucide-react";
+import { Bell, LogOut, Menu } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,9 +16,10 @@ import { ThemeToggle } from "@/components/theme-toggle";
 
 interface DashboardNavbarProps {
   userData: any;
+  logout: () => void;
 }
 
-export function DashboardNavbar({ userData }: DashboardNavbarProps) {
+export function DashboardNavbar({ userData, logout }: DashboardNavbarProps) {
   const { toggleSidebar } = useSidebar();
   const userInitials = `${userData.first_name.charAt(0)}${userData.last_name.charAt(0)}`;
 
@@ -76,7 +77,13 @@ export function DashboardNavbar({ userData }: DashboardNavbarProps) {
             <DropdownMenuItem>Profile</DropdownMenuItem>
             <DropdownMenuItem>Settings</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Log out</DropdownMenuItem>
+            <DropdownMenuItem>
+              {" "}
+              <button className="flex items-center gap-2" onClick={() => logout()}>
+                <LogOut className="h-4 w-4" />
+                <span>Logout</span>
+              </button>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

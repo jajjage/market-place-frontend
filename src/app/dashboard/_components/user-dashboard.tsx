@@ -2,20 +2,17 @@
 
 import { DashboardLayout } from "@/components/dashboard/dashboard-layout";
 import { LoadingSpinner } from "@/components/loading-spinner";
-import { useCurrentUser } from "@/lib/hooks/use-auth";
-import { useAppSelector } from "@/lib/redux/store";
 import { useAuth } from "@/providers/auth-context";
-import { UserType } from "@/types/auth.types";
 import React, { useEffect, useState } from "react";
 
 const UserDashboard = () => {
-  const { currentUser, userType, isLoading, isAuthenticated } = useAuth();
+  const { currentUser, userType, isLoading, logout } = useAuth();
 
   if (isLoading) {
     return <LoadingSpinner />;
   }
   return (
-    <DashboardLayout userData={currentUser} userType={userType}>
+    <DashboardLayout userData={currentUser} userType={userType} logout={logout}>
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">Dashboard</h1>

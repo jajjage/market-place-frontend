@@ -1,6 +1,6 @@
 "use client";
 
-import { useCurrentUser } from "@/lib/hooks/use-auth";
+import { useCurrentUser, useLogout } from "@/lib/hooks/use-auth";
 import { useAppSelector } from "@/lib/redux/store";
 import { User } from "@/types/user";
 import { createContext, useContext, useEffect, useState } from "react";
@@ -14,6 +14,7 @@ interface AuthContextType {
   currentUser: User | undefined;
   userType: UserType;
   userError: any | null;
+  logout: () => void;
 }
 
 const USER_TYPES = {
@@ -23,7 +24,7 @@ const USER_TYPES = {
 
 // Create Authentication Context with proper typing
 const AuthContext = createContext<AuthContextType | null>(null);
-export function AuthProviderContext({ children }: { children: React.ReactNode }) {
+export function AuthBootstrapProvider({ children }: { children: React.ReactNode }) {
   // 1) Check local storage for authentication status
   const [storageChecked, setStorageChecked] = useState(false);
   const [isAuthFromStorage, setIsAuthFromStorage] = useState(false);
@@ -34,6 +35,8 @@ export function AuthProviderContext({ children }: { children: React.ReactNode })
     setIsAuthFromStorage(val);
     setStorageChecked(true);
   }, []);
+
+  const logout = useLogout();
 
   // 2) Enable the query only after checking storage
   const {
@@ -65,6 +68,7 @@ export function AuthProviderContext({ children }: { children: React.ReactNode })
     currentUser,
     userType,
     userError,
+    logout: logout.mutate,
   };
 
   return <AuthContext.Provider value={authContextValue}>{children}</AuthContext.Provider>;

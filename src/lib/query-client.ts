@@ -45,22 +45,6 @@ export const getQueryClient = () => {
     // 1) Create the client
     queryClientInstance = createQueryClient();
 
-    // 2) Set up listeners for auth events
-    window.addEventListener("auth:token-refreshed", () => {
-      queryClientInstance?.invalidateQueries({
-        predicate: (query) => {
-          const err = query.state.error as any;
-          return query.state.status === "error" && err?.response?.status === 401;
-        },
-      });
-    });
-
-    window.addEventListener("auth:unauthorized", () => {
-      // Clear only currentUser, but leave other cache intact
-      queryClientInstance?.setQueryData(["currentUser"], null);
-      queryClientInstance?.invalidateQueries();
-    });
-
     // 3) Set up persistence to localStorage
     const localStoragePersister = createSyncStoragePersister({
       storage: window.localStorage,

@@ -1,5 +1,6 @@
 import { ChevronRight, Shield, Users } from "lucide-react";
 import { BenefitItem } from "./small-comp";
+import Link from "next/link";
 
 export function BenefitsSection() {
   return (
@@ -17,7 +18,7 @@ export function BenefitsSection() {
 
         <div className="flex flex-col gap-8 md:flex-row">
           <div className="w-full md:w-1/2">
-            <div className="h-full rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 p-8 text-white shadow-xl">
+            <div className="h-full rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 p-8 text-white shadow-xl">
               <div className="mb-6 flex items-center">
                 <div className="rounded-xl bg-white/20 p-3">
                   <Users size={32} className="text-white" />
@@ -35,10 +36,12 @@ export function BenefitsSection() {
               </ul>
 
               <div className="mt-8">
-                <button className="flex transform items-center rounded-full bg-white px-6 py-3 font-medium text-blue-600 transition hover:scale-105 hover:shadow-lg">
-                  Start Buying Safely
-                  <ChevronRight className="ml-2" size={18} />
-                </button>
+                <Link href="/auth/signup">
+                  <button className="flex transform items-center rounded-full bg-white px-6 py-3 font-medium text-blue-500 transition hover:scale-105 hover:shadow-lg">
+                    Start Buying Safely
+                    <ChevronRight className="ml-2" size={18} />
+                  </button>
+                </Link>
               </div>
             </div>
           </div>
@@ -80,10 +83,12 @@ export function BenefitsSection() {
               </ul>
 
               <div className="mt-8">
-                <button className="flex transform items-center rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 font-medium text-white transition hover:scale-105 hover:shadow-lg">
-                  Start Selling Securely
-                  <ChevronRight className="ml-2" size={18} />
-                </button>
+                <Link href={"/auth/signup"}>
+                  <button className="flex transform items-center rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-3 font-medium text-white transition hover:scale-105 hover:shadow-lg">
+                    Start Selling Securely
+                    <ChevronRight className="ml-2" size={18} />
+                  </button>
+                </Link>
               </div>
             </div>
           </div>

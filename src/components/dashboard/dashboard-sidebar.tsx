@@ -32,9 +32,10 @@ import { Badge } from "@/components/ui/badge";
 interface DashboardSidebarProps {
   userData: any;
   userType: UserType;
+  logout: () => void;
 }
 
-export function DashboardSidebar({ userData, userType }: DashboardSidebarProps) {
+export function DashboardSidebar({ userData, userType, logout }: DashboardSidebarProps) {
   const userInitials = `${userData.first_name.charAt(0)}${userData.last_name.charAt(0)}`;
   const purchasesCount = userData.purchases?.length || 0;
   const salesCount = userData.sales?.length || 0;
@@ -175,10 +176,10 @@ export function DashboardSidebar({ userData, userType }: DashboardSidebarProps) 
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <a href="#">
+              <button onClick={() => logout()}>
                 <LogOut className="h-4 w-4" />
                 <span>Logout</span>
-              </a>
+              </button>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

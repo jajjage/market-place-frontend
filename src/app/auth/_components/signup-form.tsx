@@ -117,16 +117,17 @@ export function SignupForm({ onSubmit, error }: SignupFormProps) {
         state={formErrors.confirmPassword ? "error" : "default"}
         helperText={formErrors.confirmPassword}
       />
-      {formErrors.general && (
-        <p className="text-sm text-red-500">{formErrors.general}</p>
-      )}
+      {formErrors.general && <p className="text-sm text-red-500">{formErrors.general}</p>}
       <Button type="submit" className="w-full" disabled={isSubmitting}>
         {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
         Continue
       </Button>
       <p className="text-center text-sm text-muted-foreground">
         Already have an account?{" "}
-        <Link href="/login" className="font-medium text-primary underline-offset-4 hover:underline">
+        <Link
+          href="/auth/login"
+          className="font-medium text-primary underline-offset-4 hover:underline"
+        >
           Log in
         </Link>
       </p>
