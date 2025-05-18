@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useGoogleAuth as googleAuth, useUpdateCurrentUser } from "@/lib/hooks/use-auth";
+import { useGoogleAuth as googleAuth, useUpdateCurrentUser } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
 import { User } from "@/types/user";
 

@@ -3,7 +3,7 @@
 import { throttle } from "lodash";
 import { useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useCurrentUser, useLogout } from "@/lib/hooks/use-auth";
+import { useCurrentUser, useLogout } from "@/hooks/use-auth";
 
 // Simplified AuthLifecycleProvider with a single throttled refresh handler
 export function AuthLifecycleProvider({ children }: { children: React.ReactNode }) {

@@ -1,33 +1,33 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { useAuth } from "@/lib/hooks/use-auth"
-import { Loader2 } from "lucide-react"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
+import { Loader2 } from "lucide-react";
 
 type User = {
-  id: string
-  name: string
-  email: string
-} | null
+  id: string;
+  name: string;
+  email: string;
+} | null;
 
 interface AuthStatusProps {
-  initialUser: User
+  initialUser: User;
 }
 
 export function AuthStatus({ initialUser }: AuthStatusProps) {
-  const [user, setUser] = useState<User>(initialUser)
-  const [isLoading, setIsLoading] = useState(false)
-  const { logout } = useAuth()
+  const [user, setUser] = useState<User>(initialUser);
+  const [isLoading, setIsLoading] = useState(false);
+  const { logout } = useAuth();
 
   async function handleLogout() {
-    setIsLoading(true)
-    await logout()
-    setUser(null)
+    setIsLoading(true);
+    await logout();
+    setUser(null);
   }
 
   if (!user) {
-    return null
+    return null;
   }
 
   return (
@@ -46,5 +46,5 @@ export function AuthStatus({ initialUser }: AuthStatusProps) {
         )}
       </Button>
     </div>
-  )
+  );
 }

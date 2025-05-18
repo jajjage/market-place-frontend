@@ -9,6 +9,7 @@ import type {
   ResetPasswordParams,
   ResetPasswordConfirmParams,
   UserLogin,
+  UserProfile,
 } from "@/types/user";
 
 const userService = {
@@ -56,10 +57,10 @@ const userService = {
     return response.data;
   },
 
-  // 4. Update the current user’s profile
-  updateCurrentUser: async (data: Partial<UserUpdate>): Promise<User> => {
-    console.log(data);
-    const response = await api.patch("auth/users/me/", data);
+  updateCurrentUser: async (data: Partial<UserProfile>): Promise<User> => {
+    console.log("Sending data:", { profile: data });
+    // Wrap the profile data in a profile object
+    const response = await api.patch("auth/users/me/", { profile: data });
     return response.data;
   },
 

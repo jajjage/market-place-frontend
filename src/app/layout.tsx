@@ -5,6 +5,7 @@ import { AuthLifecycleProvider } from "@/providers/auth-lifecycle";
 import { QueryProvider } from "@/providers/query-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthBootstrapProvider } from "@/providers/auth-context";
+import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -33,6 +34,7 @@ export default function RootLayout({
             </QueryProvider>
           </ReduxProvider>
         </ThemeProvider>
+        <Toaster />
       </body>
     </html>
   );

@@ -16,22 +16,22 @@ export interface User {
   purchases: EscrowTransaction[];
 }
 
-interface UserProfile {
+export interface UserProfile {
   id: string;
   display_name: string;
   profile_picture: string | null;
-  bio: string;
-  email_verified: boolean;
-  phone_verified: boolean;
-  identity_verified: boolean;
-  phone_number: string;
-  country: string;
-  city: string;
-  member_since: string; // ISO date string
-  last_active: string; // ISO date string
-  transactions_completed: number;
-  notification_email: boolean;
-  notification_sms: boolean;
+  bio?: string;
+  email_verified?: boolean;
+  phone_verified?: boolean;
+  identity_verified?: boolean;
+  phone_number?: string;
+  country?: string;
+  city?: string;
+  member_since?: string; // ISO date string
+  last_active?: string; // ISO date string
+  transactions_completed?: number;
+  notification_email?: boolean;
+  notification_sms?: boolean;
   verified_status: string;
   total_sales: number;
   total_purchases: number;
@@ -39,7 +39,7 @@ interface UserProfile {
   updated_at: string; // ISO date string
 }
 
-interface UserStore {
+export interface UserStore {
   id: string;
   user: string; // User ID reference
   name: string;
@@ -54,7 +54,7 @@ interface UserStore {
   updated_at: string; // ISO date string
 }
 
-interface UserAddress {
+export interface UserAddress {
   id: string;
   user: string; // User ID reference
   address_type: "shipping" | "billing" | "both";
@@ -71,7 +71,7 @@ interface UserAddress {
   updated_at: string; // ISO date string
 }
 
-interface UserRating {
+export interface UserRating {
   id: string;
   transaction: string; // Transaction ID reference
   from_user: string; // User ID reference
@@ -81,6 +81,20 @@ interface UserRating {
   created_at: string; // ISO date string
   updated_at: string; // ISO date string
 }
+
+export interface UserPublicProfile {
+  id: string;
+  display_name: string;
+  profile_picture: string | null;
+  bio: string;
+  country: string;
+  city: string;
+  member_since: string; // ISO date string
+  verified_status: string;
+  total_sales: number;
+  total_purchases: number;
+}
+
 export interface UserLogin {
   email: string;
   password: string;
@@ -125,4 +139,17 @@ export interface ResetPasswordConfirmParams {
   token: string;
   new_password: string;
   re_new_password: string;
+}
+
+export interface ProfileData {
+  profile: {
+    display_name?: string;
+    bio?: string;
+    phone_number?: string;
+    country?: string;
+    city?: string;
+    email_verified?: boolean;
+    phone_verified?: boolean;
+    identity_verified?: boolean;
+  };
 }

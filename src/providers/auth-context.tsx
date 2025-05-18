@@ -1,6 +1,6 @@
 "use client";
 
-import { useCurrentUser, useLogout } from "@/lib/hooks/use-auth";
+import { useCurrentUser, useLogout } from "@/hooks/use-auth";
 import { useAppSelector } from "@/lib/redux/store";
 import { User } from "@/types/user";
 import { createContext, useContext, useEffect, useState } from "react";

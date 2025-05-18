@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { AuthForm } from "@/components/auth/auth-form";
-import { useLogin } from "@/lib/hooks/use-auth"; // Adjust the import path
+import { useLogin } from "@/hooks/use-auth"; // Adjust the import path
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { GoogleAuthButton } from "@/components/auth/google-auth-button";

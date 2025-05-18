@@ -7,7 +7,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 import { SignupForm } from "@/app/auth/_components/signup-form";
 import { RoleSelection } from "@/components/auth/role-selection";
-import { useRegister, useLogin } from "@/lib/hooks/use-auth"; // Adjust the import path
+import { useRegister, useLogin } from "@/hooks/use-auth"; // Adjust the import path
 import {
   signupDetailsSchema,
   completeSignupSchema,

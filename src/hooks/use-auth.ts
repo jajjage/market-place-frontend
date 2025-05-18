@@ -1,6 +1,8 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/use-toast";
 import userService from "@/services/auth-service"; // Adjust the import path as needed
 import type {
   User,
@@ -10,11 +12,11 @@ import type {
   SetPasswordParams,
   ResetPasswordParams,
   ResetPasswordConfirmParams,
+  UserProfile,
 } from "@/types/user";
 import { useAppDispatch } from "@/lib/redux/store";
 import { setUser, setAuthLoading, clearAuth } from "@/lib/redux/features/auth/authSlice";
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 
 export function useCurrentUser(options = { enabled: true }) {
   const dispatch = useAppDispatch();
@@ -224,11 +226,31 @@ export function useActivate() {
 
 // Mutation hook for updating the current user
 export function useUpdateCurrentUser() {
+  const { toast } = useToast();
+  const router = useRouter();
   const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: (data: Partial<UserUpdate>) => userService.updateCurrentUser(data),
+    mutationFn: (data: Partial<UserProfile>) => userService.updateCurrentUser(data),
     onSuccess: (updatedUser: User) => {
-      queryClient.setQueryData(["currentUser"], updatedUser);
+      toast({
+        title: "Success",
+        description: "Your profile has been updated successfully",
+      });
+
+      // Invalidate and refetch current user data to ensure it's up to date
+      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+
+      router.push("/dashboard/seller/profile");
+      router.refresh();
+    },
+    onError: (error: Error) => {
+      console.error("Profile update error:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update profile",
+        variant: "destructive",
+      });
     },
   });
 }
