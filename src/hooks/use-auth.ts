@@ -233,16 +233,8 @@ export function useUpdateCurrentUser() {
   return useMutation({
     mutationFn: (data: Partial<UserProfile>) => userService.updateCurrentUser(data),
     onSuccess: (updatedUser: User) => {
-      toast({
-        title: "Success",
-        description: "Your profile has been updated successfully",
-      });
-
       // Invalidate and refetch current user data to ensure it's up to date
       queryClient.invalidateQueries({ queryKey: ["currentUser"] });
-
-      router.push("/dashboard/seller/profile");
-      router.refresh();
     },
     onError: (error: Error) => {
       console.error("Profile update error:", error);

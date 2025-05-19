@@ -39,6 +39,7 @@ export function UpdateForm({ profile, onSubmit }: UpdateFormProps) {
         description: "Profile updated successfully",
       });
       router.push("/dashboard/seller/profile");
+      router.refresh();
     } catch (error) {
       toast({
         title: "Error",

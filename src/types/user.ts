@@ -14,6 +14,7 @@ export interface User {
   disputes: Dispute[];
   sales: EscrowTransaction[];
   purchases: EscrowTransaction[];
+  avatar_url: string | null;
 }
 
 export interface UserProfile {

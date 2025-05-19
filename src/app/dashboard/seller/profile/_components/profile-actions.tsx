@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { EditIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export function ProfileActions() {
@@ -8,12 +9,12 @@ export function ProfileActions() {
 
   return (
     <div className="flex justify-end">
-      <Button
+      <button
         onClick={() => router.push("/dashboard/seller/profile/update")}
-        className="bg-blue-600 hover:bg-blue-700"
+        className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-white shadow-sm hover:bg-indigo-700"
       >
-        Update Profile
-      </Button>
+        <EditIcon /> Edit Profile
+      </button>
     </div>
   );
 }

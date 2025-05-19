@@ -11,6 +11,7 @@ import {
   Star,
   Settings,
   LogOut,
+  Shield,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import type { UserType } from "@/types/auth.types";
@@ -169,6 +170,30 @@ export function DashboardSidebar({ userData, userType, logout }: DashboardSideba
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+              {userType === "SELLER" && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === "/dashboard/seller/verification"}
+                  >
+                    <Link href="/dashboard/seller/verification">
+                      <Shield className="h-4 w-4" />
+                      <span>
+                        {userData.profile.email_verified &&
+                        userData.profile.phone_verified &&
+                        userData.profile.identity_verified
+                          ? "Verified"
+                          : "Verify Account"}
+                      </span>
+                      {!(
+                        userData.profile.email_verified &&
+                        userData.profile.phone_verified &&
+                        userData.profile.identity_verified
+                      ) && <Badge className="ml-auto">!</Badge>}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathname === "/dashboard/settings"}>
                   <Link href="/dashboard/settings">

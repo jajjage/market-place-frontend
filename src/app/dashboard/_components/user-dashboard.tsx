@@ -3,6 +3,7 @@
 import { DashboardLayout } from "@/components/dashboard/dashboard-layout";
 import { LoadingSpinner } from "@/components/loading-spinner";
 import { useAuth } from "@/providers/auth-context";
+import { AlertCircle } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
 const UserDashboard = () => {
@@ -14,6 +15,23 @@ const UserDashboard = () => {
   return (
     <DashboardLayout userData={currentUser} userType={userType} logout={logout}>
       <div className="space-y-4">
+        {userType === "SELLER" && currentUser?.profile.verified_status === "Unverified" && (
+          <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-3">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="h-5 w-5 text-yellow-600" />
+              <div>
+                <p className="text-sm font-medium text-yellow-800">Account not verified</p>
+                <p className="text-sm text-yellow-700">
+                  Complete your verification to unlock all seller features.{" "}
+                  <a href="/dashboard/seller/verification" className="font-medium underline">
+                    Verify now
+                  </a>
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">Dashboard</h1>
         </div>
@@ -51,7 +69,7 @@ const UserDashboard = () => {
             <div className="flex flex-row items-center justify-between space-y-0 pb-2">
               <h3 className="text-sm font-medium tracking-tight">Account Status</h3>
             </div>
-            <div className="text-2xl font-bold">{currentUser?.verification_status}</div>
+            <div className="text-2xl font-bold">{currentUser?.profile.verified_status}</div>
           </div>
         </div>
 

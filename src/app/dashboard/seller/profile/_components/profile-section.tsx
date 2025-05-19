@@ -1,8 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
-
 interface ProfileSectionProps {
   title: string;
   children: React.ReactNode;
@@ -10,9 +7,9 @@ interface ProfileSectionProps {
 
 export function ProfileSection({ title, children }: ProfileSectionProps) {
   return (
-    <Card className="rounded-lg border bg-card p-6">
-      <h2 className="mb-4 text-lg font-semibold">{title}</h2>
-      <div className="space-y-4">{children}</div>
-    </Card>
+    <div className="rounded-xl bg-white p-6 shadow-sm">
+      <h2 className="mb-4 text-lg font-medium text-gray-800">{title}</h2>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">{children}</div>
+    </div>
   );
 }
