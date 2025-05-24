@@ -40,7 +40,7 @@ export const VerificationBadge = ({ user }: VerificationBadgeProps) => {
             with buyers.
           </p>
           <Button
-            onClick={() => router.push("/dashboard/seller/verification")}
+            onClick={() => router.push("/dashboard/verification")}
             className="mt-3 bg-amber-600 hover:bg-amber-700"
           >
             Complete Verification

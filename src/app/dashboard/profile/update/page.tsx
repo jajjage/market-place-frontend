@@ -21,16 +21,14 @@ export default function UpdateProfilePage() {
   };
 
   return (
-    <RouteGuard allowedUserType="SELLER">
-      <DashboardLayout userData={currentUser} userType={userType} logout={logout}>
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold">Update Profile</h1>
-          </div>
-
-          <UpdateForm profile={currentUser.profile || {}} onSubmit={handleUpdateProfile} />
+    <DashboardLayout userData={currentUser} logout={logout}>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">Update Profile</h1>
         </div>
-      </DashboardLayout>
-    </RouteGuard>
+
+        <UpdateForm profile={currentUser.profile || {}} onSubmit={handleUpdateProfile} />
+      </div>
+    </DashboardLayout>
   );
 }

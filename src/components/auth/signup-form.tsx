@@ -13,16 +13,16 @@ interface SignupFormProps {
   onSubmit: (data: {
     first_name: string;
     last_name: string;
-    user_type: "BUYER" | "SELLER";
     email: string;
     password: string;
     re_password: string;
   }) => void;
   error?: string | null;
+  isSubmitting?: boolean;
+  setIsSubmitting?: (isSubmitting: boolean) => void;
 }
 
-export function SignupForm({ onSubmit, error }: SignupFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export function SignupForm({ onSubmit, error, isSubmitting, setIsSubmitting }: SignupFormProps) {
   const [formErrors, setFormErrors] = useState<FormErrors>({});
 
   useEffect(() => {
@@ -43,7 +43,9 @@ export function SignupForm({ onSubmit, error }: SignupFormProps) {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    if (setIsSubmitting) {
+      setIsSubmitting(true);
+    }
 
     const formData = new FormData(e.currentTarget);
     const first_name = formData.get("first_name") as string;
@@ -59,9 +61,7 @@ export function SignupForm({ onSubmit, error }: SignupFormProps) {
       email,
       password,
       re_password,
-      user_type: "BUYER",
     });
-    setIsSubmitting(false);
   };
 
   return (
@@ -120,7 +120,7 @@ export function SignupForm({ onSubmit, error }: SignupFormProps) {
       {formErrors.general && <p className="text-sm text-red-500">{formErrors.general}</p>}
       <Button type="submit" className="w-full" disabled={isSubmitting}>
         {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        Continue
+        Sign Up
       </Button>
       <p className="text-center text-sm text-muted-foreground">
         Already have an account?{" "}

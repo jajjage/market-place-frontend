@@ -1,5 +1,3 @@
-// app/auth/google/page.tsx
-
 import GoogleAuthClient from "@/app/auth/_components/google-auth-client";
 
 export default async function GoogleAuthPage({

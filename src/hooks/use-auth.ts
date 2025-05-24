@@ -16,8 +16,9 @@ import type {
 } from "@/types/user";
 import { useAppDispatch } from "@/lib/redux/store";
 import { setUser, setAuthLoading, clearAuth } from "@/lib/redux/features/auth/authSlice";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
+// Modified useCurrentUser hook
 export function useCurrentUser(options = { enabled: true }) {
   const dispatch = useAppDispatch();
   const queryClient = useQueryClient();
@@ -28,49 +29,48 @@ export function useCurrentUser(options = { enabled: true }) {
 
   const query = useQuery({
     queryKey: ["currentUser"],
-
     queryFn: async () => {
       dispatch(setAuthLoading(true));
       try {
         const response = await userService.getCurrentUser();
-
-        // Update auth state in localStorage
-        localStorage.setItem("isAuthenticated", "true");
-
         return response;
       } catch (error: any) {
-        // Clear auth state on 401 errors
-        if (error?.response?.status === 401) {
-          localStorage.removeItem("isAuthenticated");
-        }
         throw error;
       } finally {
         dispatch(setAuthLoading(false));
       }
     },
-
-    // Configuration for optimal behavior
     enabled: options.enabled && isAuthenticated,
     staleTime: 1000 * 60 * 5, // 5 minutes
     retry: (failureCount, error: any) => {
-      // Don't retry 401s at all as we know we're not authenticated
       const is401 = error?.response?.status === 401;
       if (is401) return false;
-
-      // Standard retry logic for other errors
       return failureCount < 2;
     },
-    retryDelay: 1500, // Slightly longer delay to allow token refresh
+    retryDelay: 1500,
   });
 
-  // Sync query results with Redux and handle authentication state
+  // IMPORTANT: Add this memoization to prevent unnecessary effects
+  const dataRef = useRef(query.data);
+  const errorRef = useRef(query.error);
+
+  // Only run the effect if data or error has actually changed
   useEffect(() => {
+    // Skip if data/error hasn't changed to avoid unnecessary Redux updates
+    if (dataRef.current === query.data && errorRef.current === query.error) {
+      return;
+    }
+
+    // Update refs
+    dataRef.current = query.data;
+    errorRef.current = query.error;
+
     if (query.data) {
+      // Update Redux only (let localStorage be managed in one place)
       dispatch(setUser(query.data));
-      localStorage.setItem("isAuthenticated", "true");
     } else if (query.error) {
+      // Only handle Redux clearing here
       dispatch(clearAuth());
-      localStorage.removeItem("isAuthenticated");
     }
   }, [query.data, query.error, dispatch]);
 

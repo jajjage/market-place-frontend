@@ -3,9 +3,8 @@
 
 import { useEffect } from "react";
 import { useGoogleAuth } from "@/lib/hooks/use-google-auth";
-import LoadingState from "./loading";
 import { ErrorState } from "./error-state";
-import { RoleSelectionWrapper } from "./role-selection-wrapper";
+import GoogleLoadingSpinner from "@/components/loader/google-spinner";
 
 interface Props {
   state?: string;
@@ -13,16 +12,10 @@ interface Props {
 }
 
 export default function GoogleAuthClient({ state, code }: Props) {
-  const {
-    isLoading,
-    error,
-    showRoleSelection,
-    userData,
-    processGoogleAuth,
-    handleRoleSelect,
-    authAttempted,
-    setIsLoading,
-  } = useGoogleAuth({ state: state ?? "", code: code ?? "" });
+  const { isLoading, error, processGoogleAuth, authAttempted, setIsLoading } = useGoogleAuth({
+    state: state ?? "",
+    code: code ?? "",
+  });
 
   useEffect(() => {
     // Only run on client side
@@ -49,20 +42,13 @@ export default function GoogleAuthClient({ state, code }: Props) {
     }
   }, []);
 
-  console.log("Current state:", { isLoading, error, showRoleSelection });
-
   if (isLoading) {
     console.log("Rendering loading state");
-    return <LoadingState />;
+    return <GoogleLoadingSpinner />;
   }
 
   if (error) {
     return <ErrorState message={error} />;
   }
-
-  if (showRoleSelection) {
-    return <RoleSelectionWrapper userData={userData || {}} onSelectRole={handleRoleSelect} />;
-  }
-
   return null;
 }

@@ -20,7 +20,6 @@ export interface User {
 export interface UserProfile {
   id: string;
   display_name: string;
-  profile_picture: string | null;
   bio?: string;
   email_verified?: boolean;
   phone_verified?: boolean;
@@ -33,9 +32,9 @@ export interface UserProfile {
   transactions_completed?: number;
   notification_email?: boolean;
   notification_sms?: boolean;
-  verified_status: string;
   total_sales: number;
   total_purchases: number;
+  verified_status: string;
   created_at: string; // ISO date string
   updated_at: string; // ISO date string
 }
@@ -105,7 +104,6 @@ export interface UserCreate {
   email: string;
   first_name: string;
   last_name: string;
-  user_type: "BUYER" | "SELLER";
   password: string;
   re_password: string;
 }

@@ -5,13 +5,6 @@ import { useGoogleAuth as googleAuth, useUpdateCurrentUser } from "@/hooks/use-a
 import { useRouter } from "next/navigation";
 import { User } from "@/types/user";
 
-interface HandleRoleSelectResult {
-  success: boolean;
-  message: string;
-}
-
-type RoleType = "SELLER" | "BUYER";
-
 interface RouterType {
   push: (path: string) => void;
 }
@@ -24,7 +17,6 @@ interface UseGoogleAuthParams {
 export function useGoogleAuth({ state, code }: UseGoogleAuthParams) {
   const router: RouterType = useRouter();
   const googleMutation = googleAuth();
-  const updateUserMutation = useUpdateCurrentUser();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showRoleSelection, setShowRoleSelection] = useState(false);
@@ -103,39 +95,25 @@ export function useGoogleAuth({ state, code }: UseGoogleAuthParams) {
       if (response.status === "success") {
         setUserData((response.data as User) || null);
 
-        // If user has a role, redirect to the appropriate dashboard
-        const userType = response.data.user_type;
-        console.log("User type from payload:", userType);
+        // Clear the auth mode from localStorage
+        localStorage.removeItem("googleAuthMode");
+        localStorage.removeItem("oauth_code_timestamp");
 
-        if (userType) {
-          console.log("User has role, redirecting to dashboard:", userType);
-          // Clear the auth mode from localStorage
-          localStorage.removeItem("googleAuthMode");
-          localStorage.removeItem("oauth_code_timestamp");
-
-          const callbackUrl = localStorage.getItem("callbackUrl");
-          if (callbackUrl) {
-            console.log("Redirecting to callback URL:", callbackUrl);
-            window.location.href = callbackUrl;
-            localStorage.removeItem("callbackUrl"); // Clean up after use
-            return;
-          } else {
-            // Redirect to the dashboard
-            router.push("/dashboard");
-            return;
-          }
+        const callbackUrl = localStorage.getItem("callbackUrl");
+        if (callbackUrl) {
+          console.log("Redirecting to callback URL:", callbackUrl);
+          window.location.href = callbackUrl;
+          localStorage.removeItem("callbackUrl"); // Clean up after use
+          return;
+        } else {
+          // Redirect to the dashboard
+          router.push("/dashboard");
+          return;
         }
-
-        setShowRoleSelection(true);
-        setIsLoading(false);
-      } else {
-        console.error("Authentication rejected:", (response as GoogleAuthResponse)?.payload);
-        setError(
-          (response as GoogleAuthResponse)?.payload?.message ||
-            "Authentication failed. Please try again."
-        );
-        setIsLoading(false);
       }
+
+      setShowRoleSelection(true);
+      setIsLoading(false);
     } catch (error) {
       // Clear URL parameters on error too
       clearAuthParams();
@@ -146,84 +124,12 @@ export function useGoogleAuth({ state, code }: UseGoogleAuthParams) {
     }
   };
 
-  const handleRoleSelect = async (role: RoleType): Promise<HandleRoleSelectResult> => {
-    setIsLoading(true);
-
-    if (!state || !code || Array.isArray(state) || Array.isArray(code)) {
-      throw new Error("Missing authentication parameters");
-    }
-
-    try {
-      console.log("Selecting role:", role);
-      // Define the expected response type
-      type GoogleAuthResponse = User & {
-        payload?: { message?: string };
-        user_type?: string;
-      };
-
-      // Call your service to complete the signup with the selected role
-      const response = (await updateUserMutation.mutateAsync({
-        user_type: role,
-      })) as GoogleAuthResponse;
-      console.log("Role selection response:", response);
-
-      // Check if user exists and has a role
-      if (response) {
-        setUserData((response as User) || null);
-
-        // If user has a role, redirect to the appropriate dashboard
-        const userType = response.user_type;
-
-        if (userType) {
-          console.log("User has role, redirecting to dashboard:", userType);
-          // Clear the auth mode from localStorage
-          localStorage.removeItem("googleAuthMode");
-          localStorage.removeItem("oauth_code_timestamp");
-
-          // Redirect based on user type
-          router.push(userType === "SELLER" ? "/dashboard/seller" : "/dashboard");
-          return {
-            success: true,
-            message: "Role selected successfully",
-          };
-        }
-
-        // User exists but doesn't have a role, show role selection
-        console.log("User exists but has no role, showing role selection");
-        setIsLoading(false);
-      } else {
-        // Handle case where user doesn't exist or role selection failed
-
-        console.error("Role update rejected:", (response as GoogleAuthResponse)?.payload);
-        throw new Error(
-          (response as GoogleAuthResponse)?.payload?.message ||
-            "Failed to update role. Please try again."
-        );
-      }
-
-      return {
-        success: false,
-        message: "Failed to update role",
-      };
-    } catch (error) {
-      console.error("Error selecting role:", error);
-      setError("Failed to update role. Please try again.");
-      setIsLoading(false);
-
-      return {
-        success: false,
-        message: "Failed to update role",
-      };
-    }
-  };
-
   return {
     isLoading,
     error,
     showRoleSelection,
     userData,
     processGoogleAuth,
-    handleRoleSelect,
     authAttempted,
     setAuthAttempted,
     setIsLoading,

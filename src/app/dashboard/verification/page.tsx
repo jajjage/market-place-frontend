@@ -15,11 +15,7 @@ export default function VerificationPage() {
     return <LoadingSpinner />;
   }
 
-  return (
-    <RouteGuard allowedUserType="SELLER">
-      <VerificationPageContent />
-    </RouteGuard>
-  );
+  return <VerificationPageContent />;
 }
 
 function VerificationPageContent() {
@@ -70,44 +66,42 @@ function VerificationPageContent() {
   );
 
   return (
-    <RouteGuard allowedUserType="SELLER">
-      <DashboardLayout userData={currentUser} userType={userType} logout={logout}>
-        <div className="mx-auto max-w-4xl space-y-6 p-6">
-          <div className="space-y-4">
-            <h1 className="text-2xl font-bold">Account Verification</h1>
-            <p className="text-gray-600">
-              Complete the verification steps below to unlock all features and build trust with
-              buyers.
-            </p>
-          </div>
-
-          <div className="grid gap-6">
-            <VerificationItem
-              title="Email Verification"
-              description="Verify your email address to receive important notifications and updates."
-              isVerified={currentUser?.profile?.email_verified ?? false}
-              icon={Mail}
-              verificationRoute="/dashboard/seller/verification/email"
-            />
-
-            <VerificationItem
-              title="Phone Verification"
-              description="Add an extra layer of security by verifying your phone number."
-              isVerified={currentUser?.profile?.phone_verified ?? false}
-              icon={Phone}
-              verificationRoute="/dashboard/seller/verification/phone"
-            />
-
-            <VerificationItem
-              title="Identity Verification"
-              description="Verify your identity to increase trust and unlock additional features."
-              isVerified={currentUser?.profile?.identity_verified ?? false}
-              icon={Shield}
-              verificationRoute="/dashboard/seller/verification/identity"
-            />
-          </div>
+    <DashboardLayout userData={currentUser} logout={logout}>
+      <div className="mx-auto max-w-4xl space-y-6 p-6">
+        <div className="space-y-4">
+          <h1 className="text-2xl font-bold">Account Verification</h1>
+          <p className="text-gray-600">
+            Complete the verification steps below to unlock all features and build trust with
+            buyers.
+          </p>
         </div>
-      </DashboardLayout>
-    </RouteGuard>
+
+        <div className="grid gap-6">
+          <VerificationItem
+            title="Email Verification"
+            description="Verify your email address to receive important notifications and updates."
+            isVerified={currentUser?.profile?.email_verified ?? false}
+            icon={Mail}
+            verificationRoute="/dashboard/seller/verification/email"
+          />
+
+          <VerificationItem
+            title="Phone Verification"
+            description="Add an extra layer of security by verifying your phone number."
+            isVerified={currentUser?.profile?.phone_verified ?? false}
+            icon={Phone}
+            verificationRoute="/dashboard/seller/verification/phone"
+          />
+
+          <VerificationItem
+            title="Identity Verification"
+            description="Verify your identity to increase trust and unlock additional features."
+            isVerified={currentUser?.profile?.identity_verified ?? false}
+            icon={Shield}
+            verificationRoute="/dashboard/seller/verification/identity"
+          />
+        </div>
+      </div>
+    </DashboardLayout>
   );
 }
