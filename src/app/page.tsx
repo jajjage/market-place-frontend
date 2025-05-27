@@ -1,13 +1,22 @@
-"use client"
+"use client";
 
-import { BenefitsSection, CtaSection, FeaturesSection, Footer, HeroSection, HowItWorksSection, Navbar, TrustSection } from "@/components/landing-page";
+import {
+  BenefitsSection,
+  CtaSection,
+  FeaturesSection,
+  Footer,
+  HeroSection,
+  HowItWorks,
+  Navbar,
+  TrustSection,
+} from "@/components/landing-page";
 import { useState, useEffect } from "react";
 
 // Main App Component
 export default function LandingPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrollPosition, setScrollPosition] = useState(0);
-  const [email, setEmail] = useState<string>("")
+  const [email, setEmail] = useState<string>("");
   const [animatedStats, setAnimatedStats] = useState({
     transactions: 0,
     users: 0,
@@ -15,7 +24,7 @@ export default function LandingPage() {
     successRate: 0,
   });
 
-   console.log(email)
+  console.log(email);
   // Handle scroll events for navbar transparency
   useEffect(() => {
     const handleScroll = () => {
@@ -72,7 +81,7 @@ export default function LandingPage() {
         scrollPosition={scrollPosition}
       />
       <HeroSection stats={animatedStats} />
-      <HowItWorksSection />
+      <HowItWorks />
       <FeaturesSection />
       <TrustSection />
       <BenefitsSection />

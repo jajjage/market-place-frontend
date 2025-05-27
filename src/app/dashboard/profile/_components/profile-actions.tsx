@@ -9,12 +9,12 @@ export function ProfileActions() {
 
   return (
     <div className="flex justify-end">
-      <button
+      <Button
         onClick={() => router.push("/dashboard/profile/update")}
-        className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-white shadow-sm hover:bg-indigo-700"
+        className="flex items-center gap-2"
       >
-        <EditIcon /> Edit Profile
-      </button>
+        <EditIcon className="h-4 w-4" /> Edit Profile
+      </Button>
     </div>
   );
 }

@@ -1,70 +1,127 @@
-import { SecurityBadge, TrustItem } from "./small-comp";
+import { Shield, Star, CheckCircle } from "lucide-react";
+
+type TrustStat = {
+  icon: React.ComponentType<{ size?: string | number; className?: string }>;
+  value: string;
+  label: string;
+};
+
+type Testimonial = {
+  name: string;
+  role: string;
+  avatar: string;
+  text: string;
+  rating: number;
+};
 
 export function TrustSection() {
   return (
-    <section className="bg-white py-20">
+    <section className="diagonal-lines-subtle py-20">
       <div className="container mx-auto px-4">
         <div className="mb-16 text-center">
-          <h2 className="mb-4 text-3xl font-bold text-gray-900 md:text-4xl">
-            Trust & Security Guarantees
+          <h2 className="mb-4 text-3xl font-bold text-white md:text-4xl">
+            Trusted by{" "}
+            <span className="bg-gradient-to-r from-[rgb(190,255,170)] to-[rgb(180,255,160)] bg-clip-text text-transparent">
+              Thousands
+            </span>{" "}
+            of Users
           </h2>
-          <p className="mx-auto max-w-3xl text-xl text-gray-600">
-            Our platform is built on a foundation of robust security protocols and transparent
-            business practices
+          <p className="mx-auto max-w-3xl text-xl text-gray-300">
+            Join our growing community of satisfied users who trust SafeTrade for their secure
+            transactions
           </p>
         </div>
 
-        <div className="flex flex-col rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-8 shadow-md md:flex-row md:items-center md:justify-between">
-          <div className="mb-8 md:mb-0 md:w-1/2 md:pr-8">
-            <h3 className="mb-4 text-2xl font-bold text-gray-900">
-              Industry-Leading Security Standards
-            </h3>
-            <ul className="space-y-4">
-              <TrustItem text="SOC 2 Type II certified with annual security audits" />
-              <TrustItem text="Bank-level 256-bit encryption for all data" />
-              <TrustItem text="Multi-factor authentication on all accounts" />
-              <TrustItem text="Automated fraud detection systems" />
-              <TrustItem text="Dedicated security team monitoring 24/7" />
-            </ul>
-          </div>
-
-          <div className="flex flex-col space-y-6 md:w-1/2">
-            <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-md">
-              <h4 className="mb-2 text-lg font-bold">Financial Protection</h4>
-              <p className="text-gray-600">
-                All funds held in escrow are stored in segregated accounts and fully insured up to
-                $250,000 through our banking partners.
-              </p>
+        <div className="grid gap-8 md:grid-cols-3">
+          {trustStats.map((stat: TrustStat, index: number) => (
+            <div
+              key={index}
+              className="transform rounded-2xl border border-[rgba(143,242,93,0.1)] bg-[rgba(31,31,31,0.95)] p-6 text-center shadow-xl backdrop-blur-md transition hover:scale-105"
+            >
+              <div className="mx-auto mb-4 w-fit rounded-xl bg-[rgba(143,242,93,0.1)] p-3">
+                <stat.icon size={24} className="text-[rgb(143,242,93)]" />
+              </div>
+              <h3 className="mb-2 text-3xl font-bold text-white">{stat.value}</h3>
+              <p className="text-gray-300">{stat.label}</p>
             </div>
-
-            <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-md">
-              <h4 className="mb-2 text-lg font-bold">Verification System</h4>
-              <p className="text-gray-600">
-                Advanced ID verification for all users, including document verification and
-                biometric checks for high-value transactions.
-              </p>
-            </div>
-
-            <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-md">
-              <h4 className="mb-2 text-lg font-bold">Transparent Pricing</h4>
-              <p className="text-gray-600">
-                Clear fee structure with no hidden charges. Pay only when your transaction completes
-                successfully.
-              </p>
-            </div>
-          </div>
+          ))}
         </div>
 
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-8">
-          <SecurityBadge text="PCI DSS Compliant" />
-          <SecurityBadge text="GDPR Compliant" />
-          <SecurityBadge text="SOC 2 Certified" />
-          <SecurityBadge text="SSL Encrypted" />
-          <SecurityBadge text="Money License" />
+        <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {testimonials.map((testimonial: Testimonial, index: number) => (
+            <div
+              key={index}
+              className="transform rounded-2xl border border-[rgba(143,242,93,0.1)] bg-[rgba(31,31,31,0.95)] p-6 shadow-xl backdrop-blur-md transition hover:scale-105"
+            >
+              <div className="mb-4 flex items-center">
+                <div className="mr-4 h-12 w-12 overflow-hidden rounded-full">
+                  <img
+                    src={testimonial.avatar}
+                    alt={testimonial.name}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <div>
+                  <h4 className="font-bold text-white">{testimonial.name}</h4>
+                  <p className="text-sm text-gray-300">{testimonial.role}</p>
+                </div>
+              </div>
+              <p className="text-gray-300">{testimonial.text}</p>
+              <div className="mt-4 flex text-[rgb(143,242,93)]">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    size={16}
+                    className={i < testimonial.rating ? "fill-current" : ""}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
   );
 }
 
+const trustStats: TrustStat[] = [
+  {
+    icon: Shield,
+    value: "99.9%",
+    label: "Secure Transactions",
+  },
+  {
+    icon: Star,
+    value: "50K+",
+    label: "Happy Users",
+  },
+  {
+    icon: CheckCircle,
+    value: "$10M+",
+    label: "Successfully Processed",
+  },
+];
 
+const testimonials: Testimonial[] = [
+  {
+    name: "Sarah Johnson",
+    role: "Online Seller",
+    avatar: "/avatars/sarah.jpg",
+    text: "SafeTrade has transformed how I do business online. The escrow system gives me peace of mind with every transaction.",
+    rating: 5,
+  },
+  {
+    name: "Michael Chen",
+    role: "Tech Entrepreneur",
+    avatar: "/avatars/michael.jpg",
+    text: "The platform is incredibly user-friendly and the customer support is exceptional. Highly recommended!",
+    rating: 5,
+  },
+  {
+    name: "Emma Davis",
+    role: "Digital Artist",
+    avatar: "/avatars/emma.jpg",
+    text: "As a freelancer, SafeTrade helps me ensure I get paid for my work. It's been a game-changer for my business.",
+    rating: 5,
+  },
+];

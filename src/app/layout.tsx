@@ -19,17 +19,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body>
+      <body className="escrow-bg min-h-screen">
         <ThemeProvider
           attribute="class" // adds class="dark" or class="light" to <html>
-          defaultTheme="light"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
           <ReduxProvider>
             <QueryProvider>
               <AuthBootstrapProvider>
-                <AuthLifecycleProvider>{children}</AuthLifecycleProvider>
+                <AuthLifecycleProvider>
+                  <main className="min-h-screen">{children}</main>
+                </AuthLifecycleProvider>
               </AuthBootstrapProvider>
             </QueryProvider>
           </ReduxProvider>

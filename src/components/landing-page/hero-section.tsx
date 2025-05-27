@@ -1,4 +1,4 @@
-import { ArrowRight, BarChart3, CheckCircle, Shield, Users } from "lucide-react";
+import { ArrowRight, BarChart3, CheckCircle, Shield, Users, Info } from "lucide-react";
 import { StatCard } from "./small-comp";
 import Link from "next/link";
 
@@ -13,77 +13,36 @@ type StatsProps = {
 
 export function HeroSection({ stats }: StatsProps) {
   return (
-    <section className="relative overflow-hidden pb-20 pt-28 md:pb-32 md:pt-40">
-      <div className="absolute inset-0 z-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50"></div>
-
-      {/* Animated background shapes */}
-      <div className="absolute right-0 top-20 h-64 w-64 rounded-full bg-blue-400 opacity-10 blur-3xl"></div>
-      <div className="absolute bottom-10 left-10 h-80 w-80 rounded-full bg-indigo-400 opacity-10 blur-3xl"></div>
-
-      <div className="container relative z-10 mx-auto px-4">
-        <div className="flex flex-col items-center md:flex-row">
-          <div className="w-full space-y-6 md:w-1/2">
-            <h1 className="text-4xl font-bold leading-tight text-gray-900 md:text-5xl lg:text-6xl">
-              <span className="block">Trust-Verified</span>
-              <span className="block bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent">
-                Escrow Services
-              </span>
-              <span className="block">for Online Transactions</span>
-            </h1>
-            <p className="text-xl text-gray-700 md:pr-10">
-              Protecting buyers and sellers with bank-level security and transparent escrow
-              solutions.
-            </p>
-            <div className="flex flex-col gap-4 pt-4 sm:flex-row sm:items-center">
-              <Link href="/auth/signup">
-                <button className="flex h-12 items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 px-8 font-medium text-white transition-transform hover:scale-105 hover:shadow-lg">
-                  Get Started
-                  <ArrowRight className="ml-2" size={18} />
-                </button>
-              </Link>
-
-              <Link href="/auth/login">
-                <button className="flex h-12 items-center justify-center rounded-full border-2 border-blue-600 px-8 font-medium text-blue-600 transition-colors hover:bg-blue-50">
-                  Learn More
-                </button>
-              </Link>
-            </div>
-          </div>
-
-          <div className="mt-12 w-full md:mt-0 md:w-1/2">
-            <div className="grid grid-cols-2 gap-4">
-              <StatCard
-                title="Transactions"
-                value={stats.transactions.toLocaleString()}
-                suffix="+"
-                icon={BarChart3}
-                iconClassName="text-blue-600"
-              />
-              <StatCard
-                title="Active Users"
-                value={stats.users.toLocaleString()}
-                suffix="+"
-                icon={Users}
-                iconClassName="text-indigo-600"
-              />
-              <StatCard
-                title="Volume Secured"
-                value={stats.volume}
-                prefix="$"
-                suffix="M+"
-                icon={Shield}
-                iconClassName="text-purple-600"
-              />
-              <StatCard
-                title="Success Rate"
-                value={stats.successRate}
-                suffix="%"
-                icon={CheckCircle}
-                iconClassName="text-green-600"
-              />
-            </div>
+    <section className="diagonal-lines relative min-h-[80vh]">
+      <div className="container mx-auto flex min-h-[80vh] flex-col items-center justify-center px-4">
+        <div className="relative z-10 text-center">
+          <h1 className="mb-6 text-4xl font-bold leading-tight text-white md:text-6xl">
+            Secure Escrow Service for{" "}
+            <span className="bg-gradient-to-r from-[rgb(190,255,170)] to-[rgb(180,255,160)] bg-clip-text text-transparent">
+              Safe Trading
+            </span>
+          </h1>
+          <p className="mx-auto mb-8 max-w-2xl text-xl text-gray-300">
+            Trade with confidence using our secure escrow service. We protect both buyers and
+            sellers, ensuring safe and reliable transactions every time.
+          </p>
+          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <Link href="/auth/signup">
+              <button className="flex transform items-center rounded-full bg-gradient-to-r from-[rgb(190,255,170)] to-[rgb(180,255,160)] px-8 py-4 font-medium text-gray-800 transition hover:scale-105 hover:shadow-lg">
+                Get Started
+                <ArrowRight className="ml-2" size={20} />
+              </button>
+            </Link>
+            <Link href="/about">
+              <button className="flex transform items-center rounded-full border border-[rgba(143,242,93,0.3)] bg-[rgba(31,31,31,0.95)] px-8 py-4 font-medium text-white backdrop-blur-md transition hover:scale-105 hover:border-[rgba(143,242,93,0.5)]">
+                Learn More
+                <Info className="ml-2" size={20} />
+              </button>
+            </Link>
           </div>
         </div>
+
+        <div className="absolute inset-0 z-0 bg-gradient-to-b from-[rgba(31,31,31,0.95)] via-transparent to-[rgba(31,31,31,0.95)]"></div>
       </div>
     </section>
   );

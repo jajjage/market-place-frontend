@@ -10,14 +10,16 @@ export default async function LoginPage({
   const { callbackUrl } = await searchParams;
 
   return (
-    <div className="container flex h-screen w-screen flex-col items-center justify-center">
+    <div className="flex min-h-screen w-screen items-center justify-center p-4">
       <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[450px]">
-        <Card>
-          <CardHeader>
-            <CardTitle>Welcome back</CardTitle>
-            <CardDescription>Enter your credentials to access your account</CardDescription>
+        <Card className="border-[rgba(143,242,93,0.1)] bg-[rgba(31,31,31,0.95)] backdrop-blur-sm">
+          <CardHeader className="diagonal-lines-subtle border-b border-[rgba(143,242,93,0.1)] pb-6">
+            <CardTitle className="text-2xl font-bold text-white">Welcome back</CardTitle>
+            <CardDescription className="text-gray-400">
+              Enter your credentials to access your account
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="diagonal-lines-green space-y-4 pt-6">
             <LoginClient callbackUrl={callbackUrl} />
           </CardContent>
         </Card>

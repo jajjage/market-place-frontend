@@ -61,7 +61,7 @@ export function UpdateForm({ profile, onSubmit }: UpdateFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <Card className="p-6">
+      <Card className="diagonal-lines-subtle rounded-xl border border-[rgba(143,242,93,0.1)] bg-[rgba(31,31,31,0.98)] p-6">
         <div className="space-y-4">
           <div>
             <Label htmlFor="display_name">Display Name</Label>

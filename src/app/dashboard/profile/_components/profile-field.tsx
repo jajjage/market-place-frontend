@@ -30,9 +30,9 @@ export function ProfileField({ label, value, type = "text" }: ProfileFieldProps)
     displayValue = value === true ? <CheckIcon /> : <XIcon />;
   }
   return (
-    <div className="rounded-lg bg-gray-50 p-3">
-      <p className="text-sm text-gray-500">{label}</p>
-      <div className="mt-1 flex items-center font-medium text-gray-800">{displayValue}</div>
+    <div className="rounded-lg border border-[rgba(143,242,93,0.1)] bg-[rgba(31,31,31,0.98)] p-3">
+      <p className="text-sm text-white">{label}</p>
+      <div className="mt-1 flex items-center font-medium text-white">{displayValue}</div>
     </div>
   );
 }

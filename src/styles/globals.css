@@ -1,84 +1,59 @@
+/*   Update global color variables for new dark gradient background and button color.   - Dashboard background: gradient from rgb(48,48,48) to rgb(31,31,31)   - Button: rgb(143,242,93)   - General color schema update for the whole website */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
   font-family: Arial, Helvetica, sans-serif;
+  /* fallback for background gradient */
+  background: linear-gradient(135deg, rgb(48, 48, 48) 0%, rgb(31, 31, 31) 100%);
 }
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    --background: 220 4% 15%; /* fallback for light mode, not used */
+    --foreground: 0 0% 100%;
+    --muted: 220 4% 20%;
+    --muted-foreground: 0 0% 70%;
+    --popover: 220 4% 15%;
+    --popover-foreground: 0 0% 100%;
+    --card: 220 4% 17%;
+    --card-foreground: 0 0% 100%;
+    --border: 220 4% 25%;
+    --input: 220 4% 25%;
+    --primary: 96 84% 66%; /* rgb(143,242,93) */
+    --primary-foreground: 0 0% 10%;
+    --secondary: 220 4% 25%;
+    --secondary-foreground: 0 0% 100%;
+    --accent: 96 84% 66%;
+    --accent-foreground: 0 0% 10%;
+    --destructive: 0 80% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --ring: 96 84% 66%;
     --radius: 0.5rem;
-    --chart-1: 221.2 83.2% 53.3%;
-    --chart-2: 210 40% 96.1%;
-    --chart-3: 210 40% 96.1%;
-    --chart-4: 210 40% 106.1%;
-    --chart-5: 221.2 83.2% 63.3%;
-    
-    --sidebar-background: 0 0% 97%;
-    --sidebar-foreground: 222 84% 50%;
-    --sidebar-primary: 221 83% 75%;
-    --sidebar-primary-foreground: 210 40% 0%;
-    --sidebar-accent: 210 40% 93%;
-    --sidebar-accent-foreground: 222.2 47.4% 11.2%;
-    --sidebar-border: 214 32% 88%;
-    --sidebar-ring: 221 83% 50%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
+    --background: 220 4% 15%; /* fallback for dark mode */
+    --foreground: 0 0% 100%;
+    --muted: 220 4% 20%;
+    --muted-foreground: 0 0% 70%;
+    --popover: 220 4% 15%;
+    --popover-foreground: 0 0% 100%;
+    --card: 220 4% 17%;
+    --card-foreground: 0 0% 100%;
+    --border: 220 4% 25%;
+    --input: 220 4% 25%;
+    --primary: 96 84% 66%; /* rgb(143,242,93) */
+    --primary-foreground: 0 0% 10%;
+    --secondary: 220 4% 25%;
+    --secondary-foreground: 0 0% 100%;
+    --accent: 96 84% 66%;
+    --accent-foreground: 0 0% 10%;
+    --destructive: 0 80% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --ring: 96 84% 66%;
     --radius: 0.5rem;
-    --chart-1: 217.2 91.2% 59.8%;
-    --chart-2: 217.2 32.6% 17.5%;
-    --chart-3: 217.2 32.6% 17.5%;
-    --chart-4: 217.2 32.6% 27.5%;
-    --chart-5: 217.2 91.2% 69.8%;
-    
-    --sidebar-background: 0 0% 0%;
-    --sidebar-foreground: 210 40% 50%;
-    --sidebar-primary: 217 91% 52%;
-    --sidebar-primary-foreground: 222 47% 100%;
-    --sidebar-accent: 217 33% 10%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 217 33% 10%;
-    --sidebar-ring: 224 76% 40%;
   }
 }
 
@@ -86,7 +61,207 @@ body {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
+    background:
+      linear-gradient(135deg, rgb(48, 48, 48) 0%, rgb(31, 31, 31) 100%),
+      repeating-linear-gradient(
+        -45deg,
+        rgba(255, 255, 255, 0.015) 0px,
+        rgba(255, 255, 255, 0.015) 1px,
+        transparent 1px,
+        transparent 12px
+      ),
+      repeating-linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.015) 0px,
+        rgba(255, 255, 255, 0.015) 1px,
+        transparent 1px,
+        transparent 12px
+      );
+    background-blend-mode: normal, overlay, overlay;
+  }
+
+  .btn,
+  button,
+  [type="button"],
+  [type="submit"] {
+    background: linear-gradient(90deg, rgb(190, 255, 170) 0%, rgb(180, 255, 160) 100%) !important;
+    color: #181818 !important;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    box-shadow: 0 2px 12px 0 rgba(143, 242, 93, 0.15);
+    transition: all 0.2s ease;
+  }
+
+  .btn:hover,
+  button:hover,
+  [type="button"]:hover,
+  [type="submit"]:hover {
+    background: linear-gradient(90deg, rgb(200, 255, 180) 0%, rgb(190, 255, 170) 100%) !important;
+    box-shadow: 0 4px 20px 0 rgba(143, 242, 93, 0.25);
+    transform: translateY(-1px);
+  }
+
+  /* Sidebar active and hover styles */
+  [data-sidebar="menu-button"] {
+    transition: all 0.18s ease;
+    position: relative;
+  }
+
+  [data-sidebar="menu-button"]:hover {
+    background: linear-gradient(
+      90deg,
+      rgba(180, 255, 160, 0.12) 0%,
+      rgba(163, 255, 143, 0.18) 100%
+    );
+    color: rgb(163, 255, 143);
+  }
+
+  [data-sidebar="menu-button"][data-active="true"] {
+    background: linear-gradient(90deg, rgb(190, 255, 170) 0%, rgb(180, 255, 160) 100%);
+    color: #181818 !important;
+    font-weight: 700;
+  }
+
+  [data-sidebar="menu-button"][data-active="true"]::before {
+    content: "";
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 12%;
+    bottom: 12%;
+    width: 4px;
+    border-radius: 4px;
+    background: rgb(163, 255, 143);
+    box-shadow: 0 0 8px 2px rgba(143, 242, 93, 0.25);
+  }
+}
+
+/* Diagonal Line Utilities */
+@layer utilities {
+  /* Main diagonal lines pattern matching your existing background */
+  .diagonal-lines {
+    background-image:
+      repeating-linear-gradient(
+        -45deg,
+        rgba(255, 255, 255, 0.015) 0px,
+        rgba(255, 255, 255, 0.015) 1px,
+        transparent 1px,
+        transparent 12px
+      ),
+      repeating-linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.015) 0px,
+        rgba(255, 255, 255, 0.015) 1px,
+        transparent 1px,
+        transparent 12px
+      );
+    background-blend-mode: overlay, overlay;
+  }
+
+  /* Complete Escrow background pattern */
+  .escrow-bg {
+    background:
+      linear-gradient(135deg, rgb(48, 48, 48) 0%, rgb(31, 31, 31) 100%),
+      repeating-linear-gradient(
+        -45deg,
+        rgba(255, 255, 255, 0.015) 0px,
+        rgba(255, 255, 255, 0.015) 1px,
+        transparent 1px,
+        transparent 12px
+      ),
+      repeating-linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.015) 0px,
+        rgba(255, 255, 255, 0.015) 1px,
+        transparent 1px,
+        transparent 12px
+      );
+    background-blend-mode: normal, overlay, overlay;
+  }
+
+  /* Subtle diagonal lines */
+  .diagonal-lines-subtle {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      rgba(255, 255, 255, 0.008) 0px,
+      rgba(255, 255, 255, 0.008) 1px,
+      transparent 1px,
+      transparent 16px
+    );
+  }
+
+  /* More prominent diagonal lines */
+  .diagonal-lines-bold {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      rgba(255, 255, 255, 0.03) 0px,
+      rgba(255, 255, 255, 0.03) 1px,
+      transparent 1px,
+      transparent 8px
+    );
+  }
+
+  /* Single direction diagonal lines */
+  .diagonal-lines-left {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      rgba(255, 255, 255, 0.02) 0px,
+      rgba(255, 255, 255, 0.02) 1px,
+      transparent 1px,
+      transparent 12px
+    );
+  }
+
+  .diagonal-lines-right {
+    background-image: repeating-linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.02) 0px,
+      rgba(255, 255, 255, 0.02) 1px,
+      transparent 1px,
+      transparent 12px
+    );
+  }
+
+  /* Colored diagonal lines variants */
+  .diagonal-lines-green {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      rgba(143, 242, 93, 0.02) 0px,
+      rgba(143, 242, 93, 0.02) 1px,
+      transparent 1px,
+      transparent 12px
+    );
+  }
+
+  .diagonal-lines-blue {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      rgba(59, 130, 246, 0.02) 0px,
+      rgba(59, 130, 246, 0.02) 1px,
+      transparent 1px,
+      transparent 12px
+    );
+  }
+
+  /* Dense diagonal grid */
+  .diagonal-grid-dense {
+    background-image:
+      repeating-linear-gradient(
+        -45deg,
+        rgba(255, 255, 255, 0.01) 0px,
+        rgba(255, 255, 255, 0.01) 1px,
+        transparent 1px,
+        transparent 6px
+      ),
+      repeating-linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.01) 0px,
+        rgba(255, 255, 255, 0.01) 1px,
+        transparent 1px,
+        transparent 6px
+      );
   }
 }

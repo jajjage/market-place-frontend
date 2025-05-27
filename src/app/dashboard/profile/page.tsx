@@ -37,105 +37,110 @@ export default function SellerProfilePage() {
   return (
     <DashboardLayout userData={currentUser} logout={logout}>
       <div className="mx-auto max-w-6xl space-y-6">
-        <ProfileHeader user={currentUser} />
-        <VerificationBadge user={currentUser} />
+        <div className="diagonal-lines-subtle rounded-lg border border-[rgba(143,242,93,0.1)]">
+          <ProfileHeader user={currentUser} />
+          {/* <VerificationBadge user={currentUser} /> */}
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <StatsCard
-            title="Total Sales"
-            value={currentUser.sales?.length}
-            icon={<OrdersIcon />}
-            color="bg-indigo-50 text-indigo-600"
-          />
-          <StatsCard
-            title="Completion Rate"
-            value={calculateCompletionRate()}
-            icon={<AnalyticsIcon />}
-            color="bg-blue-50 text-blue-600"
-          />
-          <StatsCard
-            title="Member Since"
-            value={
-              currentUser.profile.member_since
-                ? new Date(currentUser.profile.member_since).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "short",
-                  })
-                : "N/A"
-            }
-            icon={<ProfileIcon />}
-            color="bg-purple-50 text-purple-600"
-          />
-        </div>
-
-        <div className="grid gap-6">
-          <ProfileSection title="Basic Information">
-            <ProfileField label="Display Name" value={currentUser.profile.display_name} />
-            <ProfileField label="Bio" value={currentUser.profile.bio || "Not Set"} />
-            <ProfileField
-              label="Member Since"
-              value={currentUser.profile.member_since || "Not Set"}
-              type="date"
+          <div className="grid grid-cols-1 gap-6 p-6 sm:grid-cols-2 lg:grid-cols-4">
+            <StatsCard
+              title="Total Sales"
+              value={currentUser.sales?.length}
+              icon={<OrdersIcon />}
+              color="bg-[rgba(143,242,93,0.1)] text-[rgb(143,242,93)]"
             />
-            <ProfileField
-              label="Last Active"
-              value={currentUser.profile.last_active || "Not Set"}
-              type="date"
+            <StatsCard
+              title="Completion Rate"
+              value={calculateCompletionRate()}
+              icon={<AnalyticsIcon />}
+              color="bg-blue-50 text-blue-600"
             />
-          </ProfileSection>
-
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <ProfileSection title="Location">
-              <ProfileField label="Country" value={currentUser.profile.country || "Not Set"} />
-              <ProfileField label="City" value={currentUser.profile.city || "Not Set"} />
-            </ProfileSection>
-
-            <ProfileSection title="Contact Information">
-              <ProfileField label="Email" value={currentUser.email} />
-              <ProfileField
-                label="Phone Number"
-                value={currentUser.profile.phone_number || "Not Set"}
-              />
-            </ProfileSection>
+            <StatsCard
+              title="Member Since"
+              value={
+                currentUser.profile.member_since
+                  ? new Date(currentUser.profile.member_since).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "short",
+                    })
+                  : "N/A"
+              }
+              icon={<ProfileIcon />}
+              color="bg-purple-50 text-purple-600"
+            />
           </div>
 
-          <ProfileSection title="Verification Status">
-            <ProfileField
-              label="Email Verified"
-              value={currentUser.profile.email_verified || "Not Set"}
-              type="boolean"
-            />
-            <ProfileField
-              label="Phone Verified"
-              value={currentUser.profile.phone_verified || "Not Set"}
-              type="boolean"
-            />
-            <ProfileField
-              label="Identity Verified"
-              value={currentUser.profile.identity_verified || "Not Set"}
-              type="boolean"
-            />
-            <ProfileField label="Seller Status" value={currentUser.profile.verified_status} />
-          </ProfileSection>
-
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <ProfileSection title="Preferences">
+          <div className="grid gap-6 p-6">
+            <ProfileSection title="Basic Information">
+              <ProfileField label="Display Name" value={currentUser.profile.display_name} />
+              <ProfileField label="Bio" value={currentUser.profile.bio || "Not Set"} />
               <ProfileField
-                label="Email Notifications"
-                value={currentUser.profile.notification_email || "Not Set"}
-                type="boolean"
+                label="Member Since"
+                value={currentUser.profile.member_since || "Not Set"}
+                type="date"
               />
               <ProfileField
-                label="SMS Notifications"
-                value={currentUser.profile.notification_sms || "Not Set"}
-                type="boolean"
+                label="Last Active"
+                value={currentUser.profile.last_active || "Not Set"}
+                type="date"
               />
             </ProfileSection>
 
-            <ProfileSection title="Store Information">
-              <ProfileField label="Store Name" value={currentUser.store?.name || "Not Set Up"} />
-              <ProfileField label="Store Status" value={currentUser.store?.name || "Not Active"} />
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <ProfileSection title="Location">
+                <ProfileField label="Country" value={currentUser.profile.country || "Not Set"} />
+                <ProfileField label="City" value={currentUser.profile.city || "Not Set"} />
+              </ProfileSection>
+
+              <ProfileSection title="Contact Information">
+                <ProfileField label="Email" value={currentUser.email} />
+                <ProfileField
+                  label="Phone Number"
+                  value={currentUser.profile.phone_number || "Not Set"}
+                />
+              </ProfileSection>
+            </div>
+
+            <ProfileSection title="Verification Status">
+              <ProfileField
+                label="Email Verified"
+                value={currentUser.profile.email_verified || "Not Set"}
+                type="boolean"
+              />
+              <ProfileField
+                label="Phone Verified"
+                value={currentUser.profile.phone_verified || "Not Set"}
+                type="boolean"
+              />
+              <ProfileField
+                label="Identity Verified"
+                value={currentUser.profile.identity_verified || "Not Set"}
+                type="boolean"
+              />
+              <ProfileField label="Seller Status" value={currentUser.profile.verified_status} />
             </ProfileSection>
+
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <ProfileSection title="Preferences">
+                <ProfileField
+                  label="Email Notifications"
+                  value={currentUser.profile.notification_email || "Not Set"}
+                  type="boolean"
+                />
+                <ProfileField
+                  label="SMS Notifications"
+                  value={currentUser.profile.notification_sms || "Not Set"}
+                  type="boolean"
+                />
+              </ProfileSection>
+
+              <ProfileSection title="Store Information">
+                <ProfileField label="Store Name" value={currentUser.store?.name || "Not Set Up"} />
+                <ProfileField
+                  label="Store Status"
+                  value={currentUser.store?.name || "Not Active"}
+                />
+              </ProfileSection>
+            </div>
           </div>
         </div>
       </div>

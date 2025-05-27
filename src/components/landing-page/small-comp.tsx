@@ -15,16 +15,62 @@ import {
   LucideIcon,
 } from "lucide-react";
 import React from "react";
+import Image from "next/image";
+import Link from "next/link";
 
-export function Logo() {
+export function Logo({ width = 140, height = 40 }) {
   return (
     <div className="flex items-center">
-      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600">
-        <Lock className="text-white" size={20} />
-      </div>
-      <span className="ml-2 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-xl font-bold text-transparent">
-        SecureEscrow
-      </span>
+      <svg width={width} height={height} viewBox="0 0 280 80" className="cursor-pointer">
+        {/* Icon */}
+        <g transform="translate(10, 20)">
+          {/* Main diamond/arrow shape */}
+          <path
+            d="M0 20 L20 0 L40 20 L20 40 Z"
+            fill="none"
+            stroke="#b9ffa5"
+            strokeWidth="3"
+            strokeLinejoin="round"
+          />
+
+          {/* Top square */}
+          <rect
+            x="15"
+            y="2"
+            width="10"
+            height="10"
+            fill="none"
+            stroke="#b9ffa5"
+            strokeWidth="2.5"
+            transform="rotate(45 20 7)"
+          />
+
+          {/* Bottom square */}
+          <rect
+            x="15"
+            y="28"
+            width="10"
+            height="10"
+            fill="none"
+            stroke="#b9ffa5"
+            strokeWidth="2.5"
+            transform="rotate(45 20 33)"
+          />
+        </g>
+
+        {/* Text */}
+        <text
+          x="65"
+          y="50"
+          fontFamily="system-ui, -apple-system, sans-serif"
+          fontSize="28"
+          fontWeight="500"
+          fill="currentColor"
+          letterSpacing="1px"
+        >
+          TrustLock
+        </text>
+      </svg>
     </div>
   );
 }
@@ -33,19 +79,50 @@ export function Logo() {
 export function NavLinks() {
   return (
     <>
-      <a href="#" className="font-medium text-gray-700 transition hover:text-blue-600">
+      <a href="#" className="font-medium text-gray-300 transition hover:text-[rgb(143,242,93)]">
         Home
       </a>
-      <a href="#how-it-works" className="font-medium text-gray-700 transition hover:text-blue-600">
+      <a
+        href="#how-it-works"
+        className="font-medium text-gray-300 transition hover:text-[rgb(143,242,93)]"
+      >
         How It Works
       </a>
-      <a href="#features" className="font-medium text-gray-700 transition hover:text-blue-600">
+      <a
+        href="#features"
+        className="font-medium text-gray-300 transition hover:text-[rgb(143,242,93)]"
+      >
         Features
       </a>
-      <a href="#pricing" className="font-medium text-gray-700 transition hover:text-blue-600">
+      <a
+        href="#pricing"
+        className="font-medium text-gray-300 transition hover:text-[rgb(143,242,93)]"
+      >
         Pricing
       </a>
     </>
+  );
+}
+
+export function Rating({ value }: { value: number }) {
+  return (
+    <div className="flex items-center">
+      {[...Array(5)].map((_, i) => (
+        <Star
+          key={i}
+          size={14}
+          className={i < value ? "fill-[rgb(143,242,93)] text-[rgb(143,242,93)]" : "text-gray-400"}
+        />
+      ))}
+    </div>
+  );
+}
+
+export function Badge({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="rounded-full bg-[rgba(143,242,93,0.1)] px-3 py-1 text-sm text-[rgb(143,242,93)]">
+      {children}
+    </span>
   );
 }
 
@@ -170,9 +247,9 @@ export function BenefitItem({ text, color = "text-white" }: BenefitItemProps) {
 type TestimonialPillProps = {
   name: string;
   text: string;
-}
+};
 
-export function TestimonialPill({ name, text }:TestimonialPillProps) {
+export function TestimonialPill({ name, text }: TestimonialPillProps) {
   return (
     <div className="flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-2 backdrop-blur-sm">
       <div className="mr-2 rounded-full bg-blue-400/20 p-1">
@@ -186,8 +263,8 @@ export function TestimonialPill({ name, text }:TestimonialPillProps) {
 }
 
 type FooterLinksProps = {
-  links: string[]
-}
+  links: string[];
+};
 
 export function FooterLinks({ links }: FooterLinksProps) {
   return (
@@ -207,7 +284,7 @@ type SocialIconType = "twitter" | "facebook" | "instagram" | "linkedin";
 type SocialIconProps = {
   icon?: SocialIconType;
   label: string;
-}
+};
 
 // Social Icon Component
 export function SocialIcon({ icon, label }: SocialIconProps) {
@@ -286,8 +363,8 @@ export function SocialIcon({ icon, label }: SocialIconProps) {
 
 type PaymentType = "visa" | "mastercard" | "paypal" | "applePay";
 type PaymentIconProps = {
-  type: PaymentType
-}
+  type: PaymentType;
+};
 export function PaymentIcon({ type }: PaymentIconProps) {
   const icons: Record<PaymentType, JSX.Element> = {
     visa: (
@@ -323,3 +400,60 @@ export function PaymentIcon({ type }: PaymentIconProps) {
     </div>
   );
 }
+
+export function SocialLinks() {
+  return (
+    <div className="flex space-x-4">
+      {socialLinks.map((link, index) => (
+        <a
+          key={index}
+          href={link.href}
+          className="transform rounded-full bg-[rgba(143,242,93,0.1)] p-2 transition hover:scale-110 hover:bg-[rgba(143,242,93,0.2)]"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Image
+            src={`/icons/${link.icon}.svg`}
+            alt={link.label}
+            width={20}
+            height={20}
+            className="text-[rgb(143,242,93)]"
+          />
+        </a>
+      ))}
+    </div>
+  );
+}
+
+export function PaymentMethods() {
+  return (
+    <div className="flex flex-wrap gap-4">
+      {paymentMethods.map((method, index) => (
+        <div key={index} className="rounded-lg bg-[rgba(31,31,31,0.95)] p-2 backdrop-blur-md">
+          <Image
+            src={`/payments/${method.icon}.svg`}
+            alt={method.label}
+            width={40}
+            height={24}
+            className="h-6 w-auto"
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const socialLinks = [
+  { icon: "facebook", label: "Facebook", href: "#" },
+  { icon: "twitter", label: "Twitter", href: "#" },
+  { icon: "instagram", label: "Instagram", href: "#" },
+  { icon: "linkedin", label: "LinkedIn", href: "#" },
+] as const;
+
+const paymentMethods = [
+  { icon: "visa", label: "Visa" },
+  { icon: "mastercard", label: "Mastercard" },
+  { icon: "paypal", label: "PayPal" },
+  { icon: "stripe", label: "Stripe" },
+  { icon: "bitcoin", label: "Bitcoin" },
+] as const;

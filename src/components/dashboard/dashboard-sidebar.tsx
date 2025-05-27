@@ -7,11 +7,12 @@ import {
   AlertCircle,
   User,
   Store,
+  BarChart3,
+  Star,
   Settings,
   LogOut,
-  Shield,
 } from "lucide-react";
-import { usePathname } from "next/navigation";
+import type { UserType } from "@/types/auth.types";
 import {
   Sidebar,
   SidebarContent,
@@ -24,116 +25,82 @@ import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarGroupContent,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 
 interface DashboardSidebarProps {
   userData: any;
   logout: () => void;
-  isCollapsed: boolean;
 }
 
-export function DashboardSidebar({ userData, logout, isCollapsed }: DashboardSidebarProps) {
+export function DashboardSidebar({ userData, logout }: DashboardSidebarProps) {
   const pathname = usePathname();
+  const { setOpenMobile, isMobile } = useSidebar();
   const userInitials = `${userData.first_name.charAt(0)}${userData.last_name.charAt(0)}`;
-  const transactionsCount = (userData.purchases?.length || 0) + (userData.sales?.length || 0);
+  const purchasesCount = userData.purchases?.length || 0;
+  const salesCount = userData.sales?.length || 0;
   const disputesCount = userData.disputes?.length || 0;
 
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  }, [pathname, isMobile, setOpenMobile]);
+
+  const navigation = [
+    { name: "Home", href: "/dashboard", icon: Home },
+    { name: "Purchases", href: "/dashboard/purchases", icon: ShoppingBag, count: purchasesCount },
+    { name: "Addresses", href: "/dashboard/addresses", icon: MapPin },
+    { name: "Store", href: "/dashboard/my-store", icon: Store },
+    { name: "Sales", href: "/dashboard/sales", icon: ShoppingBag, count: salesCount },
+    { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
+    { name: "Ratings", href: "/dashboard/ratings", icon: Star },
+    { name: "Disputes", href: "/dashboard/disputes", icon: AlertCircle, count: disputesCount },
+  ];
+
+  const accountNavigation = [
+    { name: "Profile", href: "/dashboard/profile", icon: User },
+    { name: "Settings", href: "/dashboard/settings", icon: Settings },
+  ];
+
   return (
-    <Sidebar
-      className={cn(
-        "fixed left-0 h-full transition-all duration-300",
-        isCollapsed ? "w-[70px]" : "w-64"
-      )}
-    >
+    <Sidebar>
       <SidebarHeader className="border-b">
-        <div
-          className={cn("flex items-center px-2 py-3", isCollapsed ? "justify-center" : "gap-2")}
-        >
-          <Avatar className="h-10 w-10 shrink-0">
+        <div className="flex items-center gap-2 px-2 py-3">
+          <Avatar className="h-10 w-10">
             <AvatarImage
-              src={userData.avatar_url || " "}
+              src={userData.avatar_url || ""}
               alt={`${userData.first_name} ${userData.last_name}`}
             />
             <AvatarFallback>{userInitials}</AvatarFallback>
           </Avatar>
-          {!isCollapsed && (
-            <div className="flex min-w-0 flex-1 flex-col">
-              <span className="truncate font-medium">{`${userData.first_name} ${userData.last_name}`}</span>
-              <span className="text-xs text-muted-foreground">User</span>
-            </div>
-          )}
+          <div className="flex flex-col">
+            <span className="font-medium">{`${userData.first_name} ${userData.last_name}`}</span>
+          </div>
         </div>
       </SidebarHeader>
-
       <SidebarContent>
         <SidebarGroup>
-          {!isCollapsed && <SidebarGroupLabel>Dashboard</SidebarGroupLabel>}
+          <SidebarGroupLabel>Dashboard</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === "/dashboard"}>
-                  <Link href="/dashboard" className="flex items-center gap-2">
-                    <Home className="h-4 w-4" />
-                    {!isCollapsed && <span>Home</span>}
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname.includes("/dashboard/transactions")}>
-                  <Link href="/dashboard/transactions" className="flex items-center gap-2">
-                    <ShoppingBag className="h-4 w-4" />
-                    {!isCollapsed && (
-                      <>
-                        <span>Transactions</span>
-                        {transactionsCount > 0 && (
-                          <Badge className="ml-auto">{transactionsCount}</Badge>
-                        )}
-                      </>
-                    )}
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname.includes("/dashboard/addresses")}>
-                  <Link href="/dashboard/addresses" className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4" />
-                    {!isCollapsed && <span>Addresses</span>}
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              {userData.store && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild isActive={pathname.includes("/dashboard/store")}>
-                    <Link href="/dashboard/store" className="flex items-center gap-2">
-                      <Store className="h-4 w-4" />
-                      {!isCollapsed && <span>Store</span>}
+              {navigation.map((item) => (
+                <SidebarMenuItem key={item.name}>
+                  <SidebarMenuButton asChild isActive={pathname === item.href}>
+                    <Link href={item.href}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.name}</span>
+                      {item.count > 0 && <Badge className="ml-auto">{item.count}</Badge>}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-              )}
-
-              {disputesCount > 0 && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild isActive={pathname.includes("/dashboard/disputes")}>
-                    <Link href="/dashboard/disputes" className="flex items-center gap-2">
-                      <AlertCircle className="h-4 w-4" />
-                      {!isCollapsed && (
-                        <>
-                          <span>Disputes</span>
-                          <Badge className="ml-auto">{disputesCount}</Badge>
-                        </>
-                      )}
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              )}
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -141,44 +108,19 @@ export function DashboardSidebar({ userData, logout, isCollapsed }: DashboardSid
         <SidebarSeparator />
 
         <SidebarGroup>
-          {!isCollapsed && <SidebarGroupLabel>Account</SidebarGroupLabel>}
+          <SidebarGroupLabel>Account</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === "/dashboard/profile"}>
-                  <Link href="/dashboard/profile" className="flex items-center gap-2">
-                    <User className="h-4 w-4" />
-                    {!isCollapsed && <span>Profile</span>}
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              {!userData.profile.verified_status && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild isActive={pathname === "/dashboard/verification"}>
-                    <Link href="/dashboard/verification" className="flex items-center gap-2">
-                      <Shield className="h-4 w-4" />
-                      {!isCollapsed ? (
-                        <>
-                          <span>Verify Account</span>
-                          <Badge className="ml-auto">!</Badge>
-                        </>
-                      ) : (
-                        <Badge className="ml-auto">!</Badge>
-                      )}
+              {accountNavigation.map((item) => (
+                <SidebarMenuItem key={item.name}>
+                  <SidebarMenuButton asChild isActive={pathname === item.href}>
+                    <Link href={item.href}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.name}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-              )}
-
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === "/dashboard/settings"}>
-                  <Link href="/dashboard/settings" className="flex items-center gap-2">
-                    <Settings className="h-4 w-4" />
-                    {!isCollapsed && <span>Settings</span>}
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -188,9 +130,9 @@ export function DashboardSidebar({ userData, logout, isCollapsed }: DashboardSid
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <button onClick={() => logout()} className="flex w-full items-center gap-2">
+              <button onClick={() => logout()}>
                 <LogOut className="h-4 w-4" />
-                {!isCollapsed && <span>Logout</span>}
+                <span>Logout</span>
               </button>
             </SidebarMenuButton>
           </SidebarMenuItem>

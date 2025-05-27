@@ -79,10 +79,10 @@ export function DashboardNavbar({ userData, logout }: DashboardNavbarProps) {
             <DropdownMenuSeparator />
             <DropdownMenuItem>
               {" "}
-              <button className="flex items-center gap-2" onClick={() => logout()}>
+              <Button className="flex items-center gap-2" onClick={() => logout()}>
                 <LogOut className="h-4 w-4" />
                 <span>Logout</span>
-              </button>
+              </Button>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
