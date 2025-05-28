@@ -1,31 +1,32 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-
 // This is a simple middleware to handle authentication
 // You would replace this with your own authentication implementation
 
 export async function middleware(request: NextRequest) {
   // Check if the request is for a specific path
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get("access_token")?.value
-  const refresh = request.cookies.get("refresh_token")?.value
+  const token = request.cookies.get("access_token")?.value;
+  const refresh = request.cookies.get("refresh_token")?.value;
 
   // console.log(!token)
 
   // Define routes that don't require authentication
   const publicRoutes = [
-    '/',
-    '/auth/login',
-    '/auth/signup',
-    '/auth/google',
-    '/api/auth/google/*',
-    '/password-reset',
+    "/",
+    "/auth/login",
+    "/auth/signup",
+    "/auth/google",
+    "/api/auth/google/*",
+    "/auth/password-reset",
   ];
 
-  const isPublicRoute = pathname === '/' || publicRoutes.some((route) =>
-    route !== '/' && (pathname === route || pathname.startsWith('/' + route))
-  );
+  const isPublicRoute =
+    pathname === "/" ||
+    publicRoutes.some(
+      (route) => route !== "/" && (pathname === route || pathname.startsWith("/" + route))
+    );
 
   const staticAssets = [
     "/_next/",

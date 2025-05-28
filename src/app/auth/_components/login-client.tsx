@@ -100,14 +100,6 @@ export function LoginClient({ callbackUrl }: { callbackUrl?: string }) {
 
   return (
     <>
-      {callbackInfo && (
-        <Alert variant="destructive" className="mb-4">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>OAuth Callback Issue</AlertTitle>
-          <AlertDescription>{callbackInfo}</AlertDescription>
-        </Alert>
-      )}
-
       <GoogleAuthButton mode="login" className="w-full" />
 
       <div className="relative">

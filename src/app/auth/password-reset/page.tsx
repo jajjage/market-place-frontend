@@ -111,7 +111,7 @@ export default function LoginPage() {
           </Alert>
         )}
 
-        <Card>
+        <Card className="border-[rgba(143,242,93,0.1)] bg-[rgba(31,31,31,0.95)] backdrop-blur-sm">
           <CardHeader>
             <CardTitle>Password Reset</CardTitle>
             <CardDescription>Enter your email to receive a password reset link</CardDescription>

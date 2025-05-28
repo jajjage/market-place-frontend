@@ -8,6 +8,7 @@ import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 import { SignupForm } from "@/components/auth/signup-form";
 import { useRegister, useLogin } from "@/hooks/use-auth"; // Adjust the import path
 import { signupDetailsSchema, handleZodError } from "@/lib/validation/auth-validation";
+import { AuthForm } from "@/components/auth/auth-form";
 
 export function SignupClient() {
   const router = useRouter();
@@ -16,20 +17,22 @@ export function SignupClient() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>("");
 
-  const handleDetailsSubmit = async (data: {
-    first_name: string;
-    last_name: string;
-    email: string;
-    password: string;
-    re_password: string;
-  }) => {
+  const handleDetailsSubmit = async (formData: FormData) => {
+    const data = {
+      first_name: formData.get("first_name") as string,
+      last_name: formData.get("last_name") as string,
+      email: formData.get("email") as string,
+      password: formData.get("password") as string,
+      re_password: formData.get("re_password") as string,
+    };
+
     // Validate with Zod
     const validationResult = signupDetailsSchema.safeParse(data);
 
     if (!validationResult.success) {
       setErrorMessage(handleZodError(validationResult.error));
       console.log(errorMessage);
-      return;
+      return { success: false, message: handleZodError(validationResult.error) };
     }
     try {
       await registerMutation.mutateAsync(data);
@@ -70,13 +73,6 @@ export function SignupClient() {
 
   return (
     <>
-      {errorMessage && (
-        <Alert variant="destructive" className="mb-4">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{errorMessage}</AlertDescription>
-        </Alert>
-      )}
       <div className="space-y-4">
         <GoogleAuthButton mode="signup" className="w-full" />
 
@@ -89,11 +85,24 @@ export function SignupClient() {
           </div>
         </div>
 
-        <SignupForm
+        <AuthForm
+          type="signup"
+          fields={[
+            { name: "first_name", label: "First Name", type: "text", required: true },
+            { name: "last_name", label: "Last Name", type: "text", required: true },
+            { name: "email", label: "Email", type: "email", required: true },
+            { name: "password", label: "Password", type: "password", required: true },
+            { name: "re_password", label: "Confirm Password", type: "password", required: true },
+          ]}
           onSubmit={handleDetailsSubmit}
-          error={errorMessage}
-          isSubmitting={isSubmitting}
-          setIsSubmitting={setIsSubmitting}
+          submitButtonText={
+            registerMutation.status === "pending" || loginMutation.status === "pending"
+              ? "Signing Up..."
+              : "Sign Up"
+          }
+          footerText="Already have an account?"
+          footerLinkText="Login"
+          footerLinkHref="/auth/login"
         />
       </div>
     </>
