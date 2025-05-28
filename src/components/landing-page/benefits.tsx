@@ -37,7 +37,7 @@ export function BenefitsSection() {
               </ul>
 
               <div className="mt-8">
-                <Link href="/auth/signup">
+                <Link href="/auth/login">
                   <button className="flex transform items-center rounded-full bg-gradient-to-r from-[rgb(190,255,170)] to-[rgb(180,255,160)] px-6 py-3 font-medium text-gray-800 transition hover:scale-105 hover:shadow-lg">
                     Start Buying Safely
                     <ChevronRight className="ml-2" size={18} />
@@ -85,7 +85,7 @@ export function BenefitsSection() {
               </ul>
 
               <div className="mt-8">
-                <Link href={"/auth/signup"}>
+                <Link href={"/auth/login"}>
                   <button className="flex transform items-center rounded-full bg-gradient-to-r from-[rgb(190,255,170)] to-[rgb(180,255,160)] px-6 py-3 font-medium text-gray-800 transition hover:scale-105 hover:shadow-lg">
                     Start Selling Securely
                     <ChevronRight className="ml-2" size={18} />

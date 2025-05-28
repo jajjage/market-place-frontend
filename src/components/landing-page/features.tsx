@@ -10,7 +10,7 @@ import {
 
 export function FeaturesSection() {
   return (
-    <section className="diagonal-lines-subtle py-20">
+    <section id="features" className="diagonal-lines-subtle overflow-hidden py-20">
       <div className="container mx-auto px-4">
         <div className="mb-16 text-center">
           <h2 className="mb-4 text-3xl font-bold text-white md:text-4xl">

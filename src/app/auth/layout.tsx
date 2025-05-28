@@ -1,20 +1,10 @@
 "use client";
 
-import {
-  BenefitsSection,
-  CtaSection,
-  FeaturesSection,
-  Footer,
-  HeroSection,
-  HowItWorks,
-  Navbar,
-  TrustSection,
-} from "@/components/landing-page";
+import { Footer, Navbar } from "@/components/landing-page";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
-// Main App Component
-export default function LandingPage() {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathName = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrollPosition, setScrollPosition] = useState(0);
@@ -24,6 +14,8 @@ export default function LandingPage() {
     volume: 0,
     successRate: 0,
   });
+
+  console.log(pathName);
 
   // Handle scroll events for navbar transparency
   useEffect(() => {
@@ -74,19 +66,14 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-gradient-to-b from-[rgb(48,48,48)] to-[rgb(31,31,31)]">
       <Navbar
         isMenuOpen={isMenuOpen}
         setIsMenuOpen={setIsMenuOpen}
         scrollPosition={scrollPosition}
         pathName={pathName}
       />
-      <HeroSection stats={animatedStats} />
-      <HowItWorks />
-      <FeaturesSection />
-      <TrustSection />
-      <BenefitsSection />
-      <CtaSection />
+      <main className="flex-grow pt-[80px]">{children}</main>
       <Footer />
     </div>
   );

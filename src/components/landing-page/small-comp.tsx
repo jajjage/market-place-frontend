@@ -1,22 +1,7 @@
-import {
-  ArrowRight,
-  Shield,
-  Users,
-  CheckCircle,
-  MessageCircle,
-  CreditCard,
-  BarChart3,
-  Menu,
-  X,
-  ChevronRight,
-  Lock,
-  Clock,
-  Star,
-  LucideIcon,
-} from "lucide-react";
-import React from "react";
+import { CheckCircle, CreditCard, Lock, Star, LucideIcon } from "lucide-react";
+import React, { useCallback } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import { Button } from "../ui/button";
 
 export function Logo({ width = 140, height = 40 }) {
   return (
@@ -77,30 +62,50 @@ export function Logo({ width = 140, height = 40 }) {
 
 // Nav Links Component
 export function NavLinks() {
+  const scrollToSection = useCallback((sectionId: string) => {
+    const section = document.querySelector(sectionId);
+    if (section) {
+      const navbarHeight = 80;
+      const targetPosition = section.getBoundingClientRect().top + window.scrollY - navbarHeight;
+
+      window.scrollTo({
+        top: targetPosition,
+        behavior: "smooth",
+      });
+    }
+  }, []);
+
   return (
-    <>
-      <a href="#" className="font-medium text-gray-300 transition hover:text-[rgb(143,242,93)]">
+    <div className="flex items-center space-x-8">
+      <a
+        onClick={() => scrollToSection("#hero")}
+        className="group relative cursor-pointer font-medium text-gray-300 transition-colors duration-300 hover:text-[rgb(143,242,93)]"
+      >
         Home
+        <span className="absolute -bottom-1 left-0 h-[2px] w-0 bg-[rgb(143,242,93)] transition-all duration-300 ease-out group-hover:w-full"></span>
       </a>
       <a
-        href="#how-it-works"
-        className="font-medium text-gray-300 transition hover:text-[rgb(143,242,93)]"
+        onClick={() => scrollToSection("#how-it-works")}
+        className="group relative cursor-pointer font-medium text-gray-300 transition-colors duration-300 hover:text-[rgb(143,242,93)]"
       >
         How It Works
+        <span className="absolute -bottom-1 left-0 h-[2px] w-0 bg-[rgb(143,242,93)] transition-all duration-300 ease-out group-hover:w-full"></span>
       </a>
       <a
-        href="#features"
-        className="font-medium text-gray-300 transition hover:text-[rgb(143,242,93)]"
+        onClick={() => scrollToSection("#features")}
+        className="group relative cursor-pointer font-medium text-gray-300 transition-colors duration-300 hover:text-[rgb(143,242,93)]"
       >
         Features
+        <span className="absolute -bottom-1 left-0 h-[2px] w-0 bg-[rgb(143,242,93)] transition-all duration-300 ease-out group-hover:w-full"></span>
       </a>
       <a
-        href="#pricing"
-        className="font-medium text-gray-300 transition hover:text-[rgb(143,242,93)]"
+        onClick={() => scrollToSection("#testimonial")}
+        className="group relative cursor-pointer font-medium text-gray-300 transition-colors duration-300 hover:text-[rgb(143,242,93)]"
       >
-        Pricing
+        Testimonial
+        <span className="absolute -bottom-1 left-0 h-[2px] w-0 bg-[rgb(143,242,93)] transition-all duration-300 ease-out group-hover:w-full"></span>
       </a>
-    </>
+    </div>
   );
 }
 

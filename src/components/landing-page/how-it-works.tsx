@@ -2,7 +2,7 @@ import { ShoppingCart, Lock, Truck, CheckCircle } from "lucide-react";
 
 export function HowItWorks() {
   return (
-    <section className="diagonal-lines py-20">
+    <section id="how-it-works" className="diagonal-lines py-20">
       <div className="container mx-auto px-4">
         <div className="mb-16 text-center">
           <h2 className="mb-4 text-3xl font-bold text-white md:text-4xl">

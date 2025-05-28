@@ -3,12 +3,7 @@ import { ArrowRight, CheckCircle } from "lucide-react";
 import { TestimonialPill } from "./small-comp";
 import React from "react";
 
-type CtaSectionProps = {
-  email: string;
-  setEmail: React.Dispatch<React.SetStateAction<string>>;
-};
-
-export function CtaSection({ email, setEmail }: CtaSectionProps) {
+export function CtaSection() {
   return (
     <section className="diagonal-lines-green py-20">
       <div className="container mx-auto px-4">

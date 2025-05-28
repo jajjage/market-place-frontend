@@ -13,7 +13,7 @@ type StatsProps = {
 
 export function HeroSection({ stats }: StatsProps) {
   return (
-    <section className="diagonal-lines relative min-h-[80vh]">
+    <section id="hero" className="diagonal-lines relative min-h-[80vh]">
       <div className="container mx-auto flex min-h-[80vh] flex-col items-center justify-center px-4">
         <div className="relative z-10 text-center">
           <h1 className="mb-6 text-4xl font-bold leading-tight text-white md:text-6xl">
