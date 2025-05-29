@@ -1,0 +1,48 @@
+/* Masonry grid styles */
+.my-masonry-grid {
+  display: flex;
+  margin-left: -16px; /* gutter size offset */
+  width: auto;
+}
+
+.my-masonry-grid_column {
+  padding-left: 16px; /* gutter size */
+  background-clip: padding-box;
+}
+
+/* Style your items */
+.my-masonry-grid_column > div {
+  margin-bottom: 16px;
+}
+
+/* Custom scrollbar for filters */
+.filters {
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
+}
+
+.filters::-webkit-scrollbar {
+  width: 6px;
+}
+
+.filters::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.filters::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.filters::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Card animations */
+.card-zoom img {
+  transition: transform 0.3s ease-in-out;
+}
+
+.card-zoom:hover img {
+  transform: scale(1.05);
+}

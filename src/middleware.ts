@@ -15,6 +15,8 @@ export async function middleware(request: NextRequest) {
   // Define routes that don't require authentication
   const publicRoutes = [
     "/",
+    "/explore",
+    "/product/*",
     "/auth/login",
     "/auth/signup",
     "/auth/google",
