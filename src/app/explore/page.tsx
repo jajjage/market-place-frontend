@@ -107,20 +107,6 @@ export default async function ExplorePage({ searchParams }: ExplorePageProps) {
         initialFilters={filters}
         mockFilters={mockFilters}
       />
-
-      {/* Trust Indicators Section - moved inside ProductsWrapper or can be added here */}
-      <section className="border-b border-gray-600/30 bg-gradient-to-r from-transparent via-gray-700/20 to-transparent">
-        <div className="container mx-auto px-4 py-4">
-          <TrustIndicators
-            stats={{
-              totalTransactions: 0,
-              verifiedSellers: 0,
-              moneyProtected: 0,
-            }}
-            {...mockStats}
-          />
-        </div>
-      </section>
     </TooltipProvider>
   );
 }

@@ -50,15 +50,18 @@ export function SearchBarWithSuggestions({
     setInputValue(value);
   }, [value]);
 
-  const handleInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const newValue = e.target.value;
-      setInputValue(newValue);
-      onSearch(newValue);
-      setIsOpen(true);
-    },
-    [onSearch]
-  );
+  // Trigger search when debounced query changes
+  useEffect(() => {
+    if (debouncedQuery !== value) {
+      onSearch(debouncedQuery);
+    }
+  }, [debouncedQuery, onSearch, value]);
+
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setInputValue(newValue);
+    setIsOpen(true);
+  }, []);
 
   const handleSuggestionClick = useCallback(
     (suggestion: string) => {
@@ -75,12 +78,13 @@ export function SearchBarWithSuggestions({
     (e: React.FormEvent) => {
       e.preventDefault();
       if (inputValue.trim()) {
+        onSearch(inputValue.trim());
         addToHistory(inputValue.trim());
         setIsOpen(false);
         inputRef.current?.blur();
       }
     },
-    [inputValue, addToHistory]
+    [inputValue, onSearch, addToHistory]
   );
 
   const handleClear = useCallback(() => {
@@ -103,7 +107,7 @@ export function SearchBarWithSuggestions({
             value={inputValue}
             onChange={handleInputChange}
             onFocus={() => setIsOpen(true)}
-            className="pl-10 pr-10"
+            className="border-border bg-card/50 pl-10 pr-10 transition-colors focus:bg-card/70"
           />
           {inputValue && (
             <Button
@@ -136,7 +140,7 @@ export function SearchBarWithSuggestions({
                     <button
                       key={index}
                       onClick={() => handleSuggestionClick(suggestion)}
-                      className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm hover:bg-muted"
+                      className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm transition-colors hover:bg-muted"
                     >
                       <Search className="h-3 w-3 text-muted-foreground" />
                       <span>{suggestion}</span>
@@ -168,7 +172,7 @@ export function SearchBarWithSuggestions({
                     <div key={index} className="flex items-center justify-between">
                       <button
                         onClick={() => handleSuggestionClick(item)}
-                        className="flex flex-1 items-center gap-2 rounded-md px-2 py-2 text-left text-sm hover:bg-muted"
+                        className="flex flex-1 items-center gap-2 rounded-md px-2 py-2 text-left text-sm transition-colors hover:bg-muted"
                       >
                         <Clock className="h-3 w-3 text-muted-foreground" />
                         <span>{item}</span>

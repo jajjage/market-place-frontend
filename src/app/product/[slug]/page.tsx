@@ -1,13 +1,17 @@
+"use client";
+
+import { useState, use } from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { Star, Heart, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ProductGallery } from "@/components/product/product-gallery";
-import { ProductInfo } from "@/components/product/product-info";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { ProductGalleryEbay } from "@/components/product/product-gallery-ebay";
 import { ProductActionsWrapper } from "@/components/product/product-actions-wrapper";
 import { ProductDetails } from "@/components/product/product-details";
 import { SimilarProducts } from "@/components/product/similar-products";
-import { Separator } from "@/components/ui/separator";
-import { MasonryGrid } from "@/components/ui/masonry-grid";
+import { SellerProfileModal } from "@/components/product/seller-profile-modal";
+import { ExploreHeaderEnhanced } from "@/components/explore/header/explore-header-enhanced";
 
 // Helper function for placeholder images
 const getPlaceholderImage = (width = 600, height = 400, seed = "default") => {
@@ -18,199 +22,357 @@ const getPlaceholderImage = (width = 600, height = 400, seed = "default") => {
 const getProductData = (slug: string) => {
   return {
     id: "1",
-    title: "Nike Air Force 1 '07 Low Triple White",
-    slug: "nike-air-force-1-triple-white",
-    price: 67.99,
-    originalPrice: 89.99,
-    escrowFee: 10,
+    title: "COACH CT721 Leather Soft Tabby 26 Shoulder Bag Crossbody Brown Outlet 26*15*13cm",
+    slug: "coach-ct721-leather-bag",
+    price: 119.0,
+    originalPrice: 299.0,
+    escrowFee: 15,
     location: "New York, NY",
+    condition: "New with tags",
     description:
-      "The Nike Air Force 1 '07 brings you a timeless classic with a fresh perspective. This iconic silhouette features premium leather construction, perforated toe box for breathability, and the legendary Air-Sole unit for lightweight cushioning. Perfect for everyday wear with its versatile white colorway that pairs with any outfit.",
+      "Coach CT721 Leather Soft Tabby Shoulder Bag Crossbody Brown Outlet. This authentic Coach bag features premium leather construction with signature hardware details. Perfect for everyday use with its versatile design that can be worn as a shoulder bag or crossbody.",
     images: [
-      { id: "1", url: getPlaceholderImage(600, 600, "nike1"), alt: "Nike Air Force 1 - Main view" },
-      { id: "2", url: getPlaceholderImage(600, 600, "nike2"), alt: "Nike Air Force 1 - Side view" },
-      { id: "3", url: getPlaceholderImage(600, 600, "nike3"), alt: "Nike Air Force 1 - Back view" },
-      {
-        id: "4",
-        url: getPlaceholderImage(600, 600, "nike4"),
-        alt: "Nike Air Force 1 - Detail view",
-      },
+      { id: "1", url: getPlaceholderImage(800, 800, "coach1"), alt: "Coach Bag - Main view" },
+      { id: "2", url: getPlaceholderImage(800, 800, "coach2"), alt: "Coach Bag - Side view" },
+      { id: "3", url: getPlaceholderImage(800, 800, "coach3"), alt: "Coach Bag - Interior view" },
+      { id: "4", url: getPlaceholderImage(800, 800, "coach4"), alt: "Coach Bag - Detail view" },
+      { id: "5", url: getPlaceholderImage(800, 800, "coach5"), alt: "Coach Bag - Back view" },
     ],
     variants: [
       {
-        type: "Size",
-        options: ["US 7", "US 8", "US 9", "US 10", "US 11", "US 12"],
+        type: "Color",
+        options: ["Brown", "Black", "Tan"],
       },
       {
         type: "Condition",
-        options: ["New", "Like New", "Good"],
+        options: ["New with tags", "Like New", "Good"],
       },
     ],
     seller: {
-      name: "Sneaker Shop",
-      rating: 4.8,
+      id: "seller1",
+      name: "BOYUANT",
+      rating: 4.9,
       isVerified: true,
       totalSales: 1250,
+      positivePercentage: 97.9,
+      memberSince: "Nov 2011",
+      location: "Los Angeles, CA",
+      responseRate: 98,
+      responseTime: "< 12 hours",
+      reviews: {
+        positive: 97,
+        neutral: 2,
+        negative: 1,
+      },
+    },
+    ratings: {
+      average: 5.0,
+      count: 3,
+      breakdown: [
+        { stars: 5, count: 3 },
+        { stars: 4, count: 0 },
+        { stars: 3, count: 0 },
+        { stars: 2, count: 0 },
+        { stars: 1, count: 0 },
+      ],
     },
     details: [
-      { label: "Brand", value: "Nike" },
-      { label: "Model", value: "Air Force 1 '07" },
-      { label: "Colorway", value: "Triple White" },
+      { label: "Brand", value: "Coach" },
+      { label: "Model", value: "CT721" },
       { label: "Material", value: "Leather" },
-      { label: "Release Year", value: "2007" },
-      { label: "Style Code", value: "315122-111" },
-      { label: "Condition", value: "New with Box" },
-      { label: "Authenticity", value: "Verified Authentic" },
+      { label: "Color", value: "Brown" },
+      { label: "Dimensions", value: "26*15*13cm" },
+      { label: "Style", value: "Shoulder Bag" },
+      { label: "Condition", value: "New with tags" },
+      { label: "Authenticity", value: "Guaranteed Authentic" },
     ],
     features: [
-      "Premium leather upper for durability and style",
-      "Perforated toe box for enhanced breathability",
-      "Air-Sole unit in heel for lightweight cushioning",
-      "Rubber outsole with pivot points for traction",
-      "Classic basketball silhouette with modern comfort",
-      "Versatile white colorway matches any outfit",
+      "Premium leather construction",
+      "Signature Coach hardware",
+      "Adjustable shoulder/crossbody strap",
+      "Multiple interior compartments",
+      "Magnetic snap closure",
+      "Dust bag included",
     ],
     specifications: [
-      { label: "Upper Material", value: "Full-grain leather" },
-      { label: "Midsole", value: "Polyurethane with Air-Sole unit" },
-      { label: "Outsole", value: "Solid rubber with pivot points" },
-      { label: "Closure", value: "Lace-up" },
-      { label: "Weight", value: "Approximately 1.2 lbs (per shoe)" },
-      { label: "Country of Origin", value: "Vietnam" },
+      { label: "Material", value: "100% Leather" },
+      { label: "Lining", value: "Fabric" },
+      { label: "Hardware", value: "Gold-tone" },
+      { label: "Closure", value: "Magnetic snap" },
+      { label: "Strap Drop", value: "22 inches" },
+      { label: "Care Instructions", value: "Professional cleaning recommended" },
     ],
     similarProducts: [
       {
         id: "101",
-        title: "Nike Air Force 1 '07 Black",
-        price: 65.99,
-        escrowFee: 10,
+        title: "Coach Leather Crossbody Bag Black",
+        price: 89.99,
+        escrowFee: 12,
         imageUrl: getPlaceholderImage(400, 400, "similar1"),
-        image: getPlaceholderImage(400, 400, "similar1"),
-        slug: "nike-air-force-1-black",
-        seller: { name: "Kicks Central", isVerified: true },
+        slug: "coach-leather-crossbody-black",
+        seller: { name: "Luxury Bags", isVerified: true },
         escrowStatus: "available" as const,
-        location: "Los Angeles, CA",
       },
       {
         id: "102",
-        title: "Adidas Stan Smith White Green",
-        price: 55.99,
-        escrowFee: 8,
+        title: "Michael Kors Shoulder Bag Brown",
+        price: 75.99,
+        escrowFee: 10,
         imageUrl: getPlaceholderImage(400, 400, "similar2"),
-        image: getPlaceholderImage(400, 400, "similar2"),
-        slug: "adidas-stan-smith-white-green",
-        seller: { name: "Sneaker Hub", isVerified: false },
+        slug: "michael-kors-shoulder-bag-brown",
+        seller: { name: "Designer Hub", isVerified: false },
         escrowStatus: "available" as const,
-        location: "Chicago, IL",
       },
       {
         id: "103",
-        title: "Converse Chuck Taylor All Star",
-        price: 45.99,
-        escrowFee: 7,
+        title: "Kate Spade Crossbody Bag",
+        price: 95.99,
+        escrowFee: 13,
         imageUrl: getPlaceholderImage(400, 400, "similar3"),
-        image: getPlaceholderImage(400, 400, "similar3"),
-        slug: "converse-chuck-taylor-all-star",
-        seller: { name: "Classic Shoes", isVerified: true },
+        slug: "kate-spade-crossbody-bag",
+        seller: { name: "Fashion Outlet", isVerified: true },
         escrowStatus: "pending" as const,
-        location: "Houston, TX",
       },
       {
         id: "104",
-        title: "Vans Old Skool Black White",
-        price: 49.99,
-        escrowFee: 8,
+        title: "Tory Burch Leather Bag",
+        price: 125.99,
+        escrowFee: 16,
         imageUrl: getPlaceholderImage(400, 400, "similar4"),
-        image: getPlaceholderImage(400, 400, "similar4"),
-        slug: "vans-old-skool-black-white",
-        seller: { name: "Skate Shop", isVerified: true },
+        slug: "tory-burch-leather-bag",
+        seller: { name: "Premium Bags", isVerified: true },
         escrowStatus: "available" as const,
-        location: "San Francisco, CA",
       },
+    ],
+    breadcrumbs: [
+      { name: "TrustLock", href: "/" },
+      { name: "Fashion & Accessories", href: "/explore?category=fashion" },
+      { name: "Women's Bags & Handbags", href: "/explore?category=bags" },
     ],
   };
 };
 
-export default async function ProductPage({ params }: { params: { slug: string } }) {
-  const resolvedParams = await params;
+export default function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
+  // Use React.use() to unwrap the params promise
+  const resolvedParams = use(params);
   const product = getProductData(resolvedParams.slug);
+  const [isSellerModalOpen, setIsSellerModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Mock handlers for header functionality
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+    // You can implement search functionality here
+  };
+
+  const handleFilterChange = (groupId: string, value: string) => {
+    // You can implement filter functionality here
+    console.log("Filter changed:", groupId, value);
+  };
+
+  const handleClearFilters = () => {
+    // You can implement clear filters functionality here
+    console.log("Filters cleared");
+  };
+
+  // Mock filters for the header
+  const mockFilters = [
+    {
+      id: "category",
+      title: "Category",
+      options: [
+        { id: "electronics", label: "Electronics" },
+        { id: "fashion", label: "Fashion" },
+        { id: "home", label: "Home & Garden" },
+        { id: "sports", label: "Sports" },
+      ],
+    },
+  ];
 
   return (
-    <div className="escrow-bg min-h-screen">
-      {/* Header with back button */}
-      <div className="diagonal-lines-subtle border-b border-border/30 bg-gradient-to-r from-[rgb(48,48,48)] to-[rgb(40,40,40)]">
-        <div className="container mx-auto px-4 py-4">
-          <Link href="/explore">
-            <Button variant="outline" size="sm" className="gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Explore
-            </Button>
-          </Link>
-        </div>
-      </div>
+    <div className="min-h-screen">
+      {/* Enhanced Header - Same as explore page but without filters */}
+      <ExploreHeaderEnhanced
+        searchQuery={searchQuery}
+        onSearchChange={handleSearchChange}
+        onFilterChange={handleFilterChange}
+        onClearFilters={handleClearFilters}
+        filters={mockFilters}
+        selectedFilters={{}}
+        showFilters={false}
+      />
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid gap-8 lg:grid-cols-3">
-          {/* Product Gallery */}
-          <div className="lg:col-span-1">
-            <ProductGallery images={product.images} />
-          </div>
-
-          {/* Product Info */}
-          <div className="lg:col-span-1">
-            <ProductInfo
-              title={product.title}
-              price={product.price}
-              originalPrice={product.originalPrice}
-              escrowFee={product.escrowFee}
-              seller={product.seller}
-              location={product.location}
-              description={product.description}
-            />
-          </div>
-
-          {/* Product Actions */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-8">
-              <ProductActionsWrapper
-                variants={product.variants}
-                escrowFee={product.escrowFee}
-                price={product.price}
-                productId={product.id}
-              />
+      <div className="escrow-bg">
+        {/* Breadcrumb Navigation */}
+        <div className="diagonal-lines-subtle border-b border-border/30 bg-gradient-to-r from-[rgb(48,48,48)] to-[rgb(40,40,40)]">
+          <div className="container mx-auto px-4 py-3">
+            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+              {product.breadcrumbs.map((breadcrumb, index) => (
+                <div key={index} className="flex items-center">
+                  {index > 0 && <span className="mx-2">›</span>}
+                  <Link href={breadcrumb.href} className="hover:text-primary">
+                    {breadcrumb.name}
+                  </Link>
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
-        <Separator className="my-12 bg-border/30" />
+        <div className="container mx-auto px-4 py-6">
+          <div className="grid gap-8 lg:grid-cols-12">
+            {/* Product Gallery - eBay Style */}
+            <div className="lg:col-span-7">
+              <ProductGalleryEbay images={product.images} />
+            </div>
 
-        {/* Product Details */}
-        <ProductDetails
-          details={product.details}
-          description={product.description}
-          features={product.features}
-          specifications={product.specifications}
-        />
+            {/* Product Info - eBay Style */}
+            <div className="lg:col-span-5">
+              <div className="space-y-6">
+                {/* Title and Actions */}
+                <div className="flex items-start justify-between">
+                  <h1 className="pr-4 text-2xl font-bold text-foreground">{product.title}</h1>
+                  <div className="flex items-center space-x-2">
+                    <Button variant="outline" size="icon">
+                      <Heart className="h-4 w-4" />
+                    </Button>
+                    <Button variant="outline" size="icon">
+                      <Share2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
 
-        <Separator className="my-12 bg-border/30" />
+                {/* Ratings */}
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`h-4 w-4 ${
+                          i < Math.round(product.ratings.average)
+                            ? "fill-primary text-primary"
+                            : "text-muted-foreground"
+                        }`}
+                      />
+                    ))}
+                    <span className="ml-2 font-medium">{product.ratings.average}</span>
+                  </div>
+                  <Link href="#reviews" className="text-primary hover:underline">
+                    {product.ratings.count} product ratings
+                  </Link>
+                </div>
 
-        {/* Similar Products */}
-        <div className="min-w-0 flex-1">
-          <div className="mb-6">
-            <h2 className="mb-2 text-2xl font-bold text-white">Explore Products</h2>
-            <p className="text-gray-400">
-              {product.similarProducts.length} products available with escrow protection
-            </p>
-          </div>
-          <MasonryGrid>
-            {product.similarProducts.map((product) => (
-              <div key={product.id} className="mb-6">
-                <SimilarProducts {...product} />
+                {/* Seller Info */}
+                <div className="flex items-center space-x-3 rounded-lg border border-border bg-card/30 p-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                    <span className="font-semibold text-primary">
+                      {product.seller.name.charAt(0)}
+                    </span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="link"
+                        className="h-auto p-0 font-medium text-primary hover:underline"
+                        onClick={() => setIsSellerModalOpen(true)}
+                      >
+                        {product.seller.name}
+                      </Button>
+                      <span className="text-sm text-muted-foreground">
+                        ({product.seller.totalSales})
+                      </span>
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {product.seller.positivePercentage}% positive feedback
+                    </div>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={() => setIsSellerModalOpen(true)}>
+                    View seller
+                  </Button>
+                </div>
+
+                {/* Price */}
+                <div className="space-y-2">
+                  <div className="text-3xl font-bold text-primary">${product.price.toFixed(2)}</div>
+                  {product.originalPrice && (
+                    <div className="flex items-center space-x-2">
+                      <span className="text-lg text-muted-foreground line-through">
+                        ${product.originalPrice.toFixed(2)}
+                      </span>
+                      <Badge variant="secondary" className="bg-primary/10 text-primary">
+                        {Math.round(
+                          ((product.originalPrice - product.price) / product.originalPrice) * 100
+                        )}
+                        % off
+                      </Badge>
+                    </div>
+                  )}
+                </div>
+
+                {/* Returns and Condition */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">Returns:</span>
+                    <span className="text-sm">
+                      No returns, but backed by{" "}
+                      <Link href="#" className="text-primary hover:underline">
+                        TrustLock Money back guarantee
+                      </Link>
+                      .
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">Condition:</span>
+                    <span className="text-sm">{product.condition}</span>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Product Actions */}
+                <ProductActionsWrapper
+                  variants={product.variants}
+                  escrowFee={product.escrowFee}
+                  price={product.price}
+                  productId={product.id}
+                />
+
+                {/* Description Preview */}
+                <div className="space-y-2">
+                  <p className="line-clamp-3 text-sm text-muted-foreground">
+                    {product.description}
+                  </p>
+                  <Link href="#description" className="text-sm text-primary hover:underline">
+                    See full description
+                  </Link>
+                </div>
               </div>
-            ))}
-          </MasonryGrid>
+            </div>
+          </div>
+
+          <Separator className="my-12 bg-border/30" />
+
+          {/* Product Details */}
+          <ProductDetails
+            details={product.details}
+            description={product.description}
+            features={product.features}
+            specifications={product.specifications}
+          />
+
+          <Separator className="my-12 bg-border/30" />
+
+          {/* Similar Products */}
+          <SimilarProducts products={product.similarProducts} />
         </div>
       </div>
+
+      {/* Seller Profile Modal */}
+      <SellerProfileModal
+        isOpen={isSellerModalOpen}
+        onClose={() => setIsSellerModalOpen(false)}
+        seller={product.seller}
+      />
     </div>
   );
 }

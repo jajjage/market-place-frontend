@@ -1,5 +1,7 @@
 "use client";
 
+import type React from "react";
+
 import Masonry from "react-masonry-css";
 import styles from "@/styles/explore.module.css";
 
@@ -17,8 +19,8 @@ export function MasonryGrid({
   className,
   breakpointCols = {
     default: 4,
-    1536: 4,
-    1280: 3,
+    1536: 5,
+    1280: 4,
     1024: 3,
     768: 2,
     640: 2,
