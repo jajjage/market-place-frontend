@@ -1,16 +1,67 @@
-import { MasonryGrid } from "@/components/ui/masonry-grid";
-import { ExploreFilters } from "./components/explore-filters";
-import { ExploreHeader } from "./components/explore-header";
+import { headers } from "next/headers";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { TrustIndicators } from "@/components/explore/sections/trust-indicators";
-import { ProductCard } from "@/components/explore/cards/product-card";
+import { ProductsWrapper } from "./components/products-wrapper";
+import productService from "@/services/product-service";
+import type { Product, ProductFilters, ProductListResponse } from "@/types/product";
 
-// Helper function for placeholder images
-const getPlaceholderImage = (width = 600, height = 400, seed = "default") => {
-  return `https://picsum.photos/seed/${seed}/${width}/${height}`;
-};
+interface ExplorePageProps {
+  searchParams: {
+    search?: string;
+    category?: string;
+    min_price?: string;
+    max_price?: string;
+    has_discount?: string;
+    page?: string;
+    [key: string]: string | undefined;
+  };
+}
 
-export default function ExplorePage() {
+export default async function ExplorePage({ searchParams }: ExplorePageProps) {
+  const params = await Promise.resolve(searchParams);
+
+  // Convert search params to filters, using optional chaining and nullish coalescing for safety
+  const filters: ProductFilters = {
+    search: params.search ?? undefined,
+    category_name: params.category ?? undefined,
+    has_discount: params.has_discount === "true" ? true : undefined,
+    min_price: params.min_price ? Number(params.min_price) : undefined,
+    max_price: params.max_price ? Number(params.max_price) : undefined,
+    page: params.page ? Number(params.page) : 1,
+    page_size: 20,
+  };
+
+  // Server-side data fetching for initial load and SEO
+  let initialProducts: Product[] = [];
+  let initialError = null;
+
+  let extraHeaders = {};
+  if (typeof window === "undefined") {
+    const cookieHeader = (await headers()).get("cookie") || "";
+    if (cookieHeader) {
+      extraHeaders = { Cookie: cookieHeader };
+    }
+  }
+
+  try {
+    const productsData = (await productService.getProducts(
+      filters,
+      extraHeaders
+    )) as ProductListResponse;
+    initialProducts = productsData?.data || [];
+  } catch (error: any) {
+    console.error("Failed to fetch initial products:", {
+      message: error.message,
+      code: error.code,
+      response: error.response?.data,
+    });
+    initialError = {
+      message: error.message,
+      code: error.code,
+      isConnectionError: error.code === "ECONNREFUSED",
+    };
+  }
+
   const mockFilters = [
     {
       id: "category",
@@ -26,10 +77,10 @@ export default function ExplorePage() {
       id: "price",
       title: "Price Range",
       options: [
-        { id: "0-50", label: "Under $50" },
-        { id: "50-100", label: "$50 - $100" },
-        { id: "100-500", label: "$100 - $500" },
-        { id: "500+", label: "Over $500" },
+        { id: "0-50", label: "Under $50", min_price: 0, max_price: 50 },
+        { id: "50-100", label: "$50 - $100", min_price: 50, max_price: 100 },
+        { id: "100-500", label: "$100 - $500", min_price: 100, max_price: 500 },
+        { id: "500+", label: "Over $500", min_price: 500 },
       ],
     },
     {
@@ -43,93 +94,6 @@ export default function ExplorePage() {
     },
   ];
 
-  const mockProducts = [
-    {
-      id: "product-1",
-      title: "Nike Air Force 1 '07 Low Triple White",
-      price: 67.99,
-      escrowFee: 10,
-      image: getPlaceholderImage(600, 400, "product1"),
-      seller: {
-        name: "Sneaker Shop",
-        rating: 4.8,
-        isVerified: true,
-      },
-      location: "New York, NY",
-      escrowStatus: "available" as const,
-    },
-    {
-      id: "product-2",
-      title: "Nike SB x Air Jordan 4 Retro SP Navy",
-      price: 105.0,
-      escrowFee: 15,
-      image: getPlaceholderImage(600, 400, "product2"),
-      seller: {
-        name: "Premium Kicks",
-        rating: 4.5,
-        isVerified: true,
-      },
-      location: "Los Angeles, CA",
-      escrowStatus: "available" as const,
-    },
-    {
-      id: "product-3",
-      title: "PlayStation 5 Digital Edition",
-      price: 399.99,
-      escrowFee: 25,
-      image: getPlaceholderImage(600, 400, "product3"),
-      seller: {
-        name: "GameStop",
-        rating: 4.9,
-        isVerified: true,
-      },
-      location: "Chicago, IL",
-      escrowStatus: "pending" as const,
-    },
-    {
-      id: "product-4",
-      title: "MacBook Pro M2 13-inch",
-      price: 1299.99,
-      escrowFee: 50,
-      image: getPlaceholderImage(600, 400, "product4"),
-      seller: {
-        name: "Tech Deals",
-        rating: 4.7,
-        isVerified: true,
-      },
-      location: "San Francisco, CA",
-      escrowStatus: "available" as const,
-    },
-    {
-      id: "product-5",
-      title: "iPhone 14 Pro Max 256GB",
-      price: 999.99,
-      escrowFee: 35,
-      image: getPlaceholderImage(600, 400, "product5"),
-      seller: {
-        name: "Mobile Hub",
-        rating: 4.6,
-        isVerified: false,
-      },
-      location: "Miami, FL",
-      escrowStatus: "available" as const,
-    },
-    {
-      id: "product-6",
-      title: 'Samsung 65" QLED 4K Smart TV',
-      price: 899.99,
-      escrowFee: 40,
-      image: getPlaceholderImage(600, 400, "product6"),
-      seller: {
-        name: "Electronics Pro",
-        rating: 4.4,
-        isVerified: true,
-      },
-      location: "Houston, TX",
-      escrowStatus: "available" as const,
-    },
-  ];
-
   const mockStats = {
     totalTransactions: 50000,
     verifiedSellers: 15000,
@@ -138,53 +102,25 @@ export default function ExplorePage() {
 
   return (
     <TooltipProvider>
-      <div className="min-h-screen bg-gradient-to-b from-[rgb(48,48,48)] to-[rgb(31,31,31)]">
-        <ExploreHeader />
+      <ProductsWrapper
+        initialProducts={initialProducts}
+        initialFilters={filters}
+        mockFilters={mockFilters}
+      />
 
-        {/* Trust Indicators Section */}
-        <section className="border-b border-gray-600/30 bg-gradient-to-r from-transparent via-gray-700/20 to-transparent">
-          <div className="container mx-auto px-4 py-4">
-            <TrustIndicators
-              stats={{
-                totalTransactions: 0,
-                verifiedSellers: 0,
-                moneyProtected: 0,
-              }}
-              {...mockStats}
-            />
-          </div>
-        </section>
-
-        {/* Main Content Section */}
-        <main className="container mx-auto px-4 py-8">
-          <div className="flex flex-col gap-8 lg:flex-row">
-            {/* Filters Sidebar */}
-            <aside className="w-full lg:w-64 lg:flex-shrink-0">
-              <div className="sticky top-32">
-                <ExploreFilters filters={mockFilters} />
-              </div>
-            </aside>
-
-            {/* Products Grid with Masonry Layout */}
-            <div className="min-w-0 flex-1">
-              <div className="mb-6">
-                <h2 className="mb-2 text-2xl font-bold text-white">Explore Products</h2>
-                <p className="text-gray-400">
-                  {mockProducts.length} products available with escrow protection
-                </p>
-              </div>
-
-              <MasonryGrid>
-                {mockProducts.map((product) => (
-                  <div key={product.id} className="mb-6">
-                    <ProductCard {...product} />
-                  </div>
-                ))}
-              </MasonryGrid>
-            </div>
-          </div>
-        </main>
-      </div>
+      {/* Trust Indicators Section - moved inside ProductsWrapper or can be added here */}
+      <section className="border-b border-gray-600/30 bg-gradient-to-r from-transparent via-gray-700/20 to-transparent">
+        <div className="container mx-auto px-4 py-4">
+          <TrustIndicators
+            stats={{
+              totalTransactions: 0,
+              verifiedSellers: 0,
+              moneyProtected: 0,
+            }}
+            {...mockStats}
+          />
+        </div>
+      </section>
     </TooltipProvider>
   );
 }

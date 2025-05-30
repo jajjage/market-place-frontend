@@ -1,6 +1,5 @@
-import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
+import axios from "axios";
 
-// Create simplified axios instance
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true,
@@ -88,8 +87,10 @@ api.interceptors.response.use(
           // Notify all waiting requests to proceed
           processQueue(null);
 
-          // Dispatch event for components to refetch data
-          window.dispatchEvent(new CustomEvent("auth:token-refreshed"));
+          // Dispatch event for components to refetch data (only on client-side)
+          if (typeof window !== "undefined") {
+            window.dispatchEvent(new CustomEvent("auth:token-refreshed"));
+          }
 
           // Retry original request
           return api(originalRequest);
@@ -100,8 +101,10 @@ api.interceptors.response.use(
         // Notify waiting requests about the failure
         processQueue(refreshError as Error);
 
-        // Dispatch logout event
-        window.dispatchEvent(new CustomEvent("auth:unauthorized"));
+        // Dispatch logout event (only on client-side)
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("auth:unauthorized"));
+        }
 
         return Promise.reject(refreshError);
       } finally {
@@ -111,8 +114,10 @@ api.interceptors.response.use(
 
     // Handle refresh endpoint failures
     if (error.response?.status === 401 && originalRequest.url?.includes("/auth/refresh")) {
-      // Clear auth state on refresh failure
-      window.dispatchEvent(new CustomEvent("auth:unauthorized"));
+      // Clear auth state on refresh failure (only on client-side)
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("auth:unauthorized"));
+      }
     }
 
     return Promise.reject(error);
