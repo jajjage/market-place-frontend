@@ -26,50 +26,48 @@ export function ProductsWrapper({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  // Initialize state from URL params
+  const initialSearch = searchParams.get("search") || initialFilters.search || "";
+  const initialCategory = searchParams.get("category") || "all";
+
   const [filters, setFilters] = useState<ProductFilters>(initialFilters);
-  const [searchQuery, setSearchQuery] = useState(
-    searchParams.get("search") || initialFilters.search || ""
-  );
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
 
   // Debounce search query to avoid hitting API on every keystroke
   const debouncedSearch = useDebounce(searchQuery, 500);
 
-  // Update URL with search query and filters
-  useEffect(() => {
-    const params = new URLSearchParams(searchParams.toString());
+  // Memoize the actual filters to prevent unnecessary re-renders
+  const actualFilters = useMemo(() => {
+    const result: Record<string, any> = {
+      ...filters,
+    };
 
-    if (debouncedSearch) {
-      params.set("search", debouncedSearch);
-    } else {
-      params.delete("search");
+    // Only add search if it has a value and length >= 2
+    if (debouncedSearch && debouncedSearch.trim().length >= 2) {
+      result.search = debouncedSearch.trim();
     }
 
-    // Add other filters to URL
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== "" && key !== "search") {
-        params.set(key, String(value));
-      } else {
-        params.delete(key);
+    // Add category filter if not "all"
+    if (selectedCategory && selectedCategory !== "all") {
+      result.category_name = selectedCategory;
+    }
+
+    // Add selected filters
+    Object.entries(selectedFilters).forEach(([key, values]) => {
+      if (values.length > 0) {
+        result[key] = values.length === 1 ? values[0] : values;
       }
     });
 
-    const newUrl = `${pathname}?${params.toString()}`;
-    if (newUrl !== `${pathname}?${searchParams.toString()}`) {
-      router.push(newUrl, { scroll: false });
-    }
-  }, [debouncedSearch, filters, pathname, router, searchParams]);
-
-  // Memoize the actual filters to prevent unnecessary re-renders
-  const actualFilters = useMemo(
-    () => ({
-      ...filters,
-      search: debouncedSearch || undefined,
-    }),
-    [filters, debouncedSearch]
-  );
+    return result;
+  }, [filters, debouncedSearch, selectedCategory, selectedFilters]);
 
   // Use TanStack Query for data fetching
+  const hasInitialData = initialProducts.length > 0;
+  const shouldUseInitialData = hasInitialData && !debouncedSearch && selectedCategory === "all";
+
   const {
     data: productsData,
     isLoading,
@@ -77,18 +75,84 @@ export function ProductsWrapper({
     error,
     isFetching,
   } = useProducts(actualFilters, {
-    initialData:
-      initialProducts.length > 0
-        ? {
-            data: initialProducts,
-            count: initialProducts.length,
-            next: undefined,
-            previous: undefined,
-          }
-        : undefined,
+    initialData: shouldUseInitialData
+      ? {
+          data: initialProducts,
+          count: initialProducts.length,
+          next: undefined,
+          previous: undefined,
+        }
+      : undefined,
+    enabled: true,
   });
 
-  const products = productsData?.data || initialProducts;
+  const isSearching = searchQuery !== debouncedSearch;
+  const isLoadingResult = isFetching && !isSearching;
+
+  // Handle empty result
+  const hasResult = (productsData?.data?.length ?? 0) > 0;
+  const showNoResult =
+    !isLoadingResult && !hasResult && (debouncedSearch.length > 0 || selectedCategory !== "all");
+
+  // Update URL when debounced search, category, or filters change
+  useEffect(() => {
+    const params = new URLSearchParams();
+
+    // Add search to URL
+    if (debouncedSearch && debouncedSearch.trim()) {
+      params.set("search", debouncedSearch.trim());
+    }
+
+    // Add category to URL
+    if (selectedCategory && selectedCategory !== "all") {
+      params.set("category", selectedCategory);
+    }
+
+    // Add other filters to URL (exclude search and category as they're handled above)
+    Object.entries(actualFilters).forEach(([key, value]) => {
+      if (
+        key !== "search" &&
+        key !== "category_name" &&
+        value !== undefined &&
+        value !== null &&
+        value !== ""
+      ) {
+        if (Array.isArray(value)) {
+          value.forEach((v) => params.append(key, String(v)));
+        } else {
+          params.set(key, String(value));
+        }
+      }
+    });
+
+    const newUrl = `${pathname}${params.toString() ? `?${params.toString()}` : ""}`;
+    const currentUrl = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
+
+    if (newUrl !== currentUrl) {
+      console.log("🔄 Updating URL:", newUrl);
+      router.push(newUrl, { scroll: false });
+    }
+  }, [debouncedSearch, selectedCategory, actualFilters, pathname, router, searchParams]);
+
+  // Get products from API or fallback to initial
+  const products = useMemo(() => {
+    // If we have API data, use it
+    if (productsData?.data) {
+      return productsData.data;
+    }
+
+    // If we're searching or filtering and no API data, return empty array
+    if (
+      debouncedSearch.length >= 2 ||
+      selectedCategory !== "all" ||
+      Object.keys(selectedFilters).length > 0
+    ) {
+      return [];
+    }
+
+    // Otherwise use initial products
+    return initialProducts;
+  }, [productsData?.data, debouncedSearch, selectedCategory, selectedFilters, initialProducts]);
 
   const handleFilterChange = useCallback(
     (groupId: string, value: string) => {
@@ -111,8 +175,8 @@ export function ProductsWrapper({
         // Convert filter selections to API format
         const apiFilters: Partial<ProductFilters> = {};
 
-        // Handle category filters
-        if (newFilters.category?.length > 0) {
+        // Handle category filters (but don't override the main category)
+        if (newFilters.category?.length > 0 && selectedCategory === "all") {
           apiFilters.category_name = newFilters.category[0];
         }
 
@@ -150,6 +214,7 @@ export function ProductsWrapper({
         // Handle seller type filters
         if (newFilters.seller?.length > 0) {
           // Map to your API's seller filtering logic
+          apiFilters.category_name = newFilters.seller[0];
         }
 
         // Update filters
@@ -157,20 +222,34 @@ export function ProductsWrapper({
         return newFilters;
       });
     },
-    [mockFilters]
+    [mockFilters, selectedCategory]
   );
 
   const handleSearchChange = useCallback((query: string) => {
+    console.log("🔍 Search change:", query);
     setSearchQuery(query);
-    // Update filters to trigger API call
-    setFilters((prev) => ({ ...prev, search: query }));
+  }, []);
+
+  const handleCategoryChange = useCallback((category: string) => {
+    console.log("📂 Category change:", category);
+    setSelectedCategory(category);
   }, []);
 
   const handleClearFilters = useCallback(() => {
+    console.log("🧹 Clearing all filters");
     setSelectedFilters({});
-    setFilters({ search: searchQuery }); // Keep search but clear other filters
     setSearchQuery("");
-  }, [searchQuery]);
+    setSelectedCategory("all");
+    setFilters({});
+
+    // Clear URL params
+    router.push(pathname, { scroll: false });
+  }, [pathname, router]);
+
+  const handleClearSearch = useCallback(() => {
+    console.log("🧹 Clearing search only");
+    setSearchQuery("");
+  }, []);
 
   // Mock stats for trust indicators
   const mockStats = {
@@ -185,8 +264,11 @@ export function ProductsWrapper({
         <ExploreHeaderEnhanced
           searchQuery={searchQuery}
           onSearchChange={handleSearchChange}
+          onCategoryChange={handleCategoryChange}
+          selectedCategory={selectedCategory}
           onFilterChange={handleFilterChange}
           onClearFilters={handleClearFilters}
+          onClearSearch={handleClearSearch}
           filters={mockFilters}
           selectedFilters={selectedFilters}
         />
@@ -213,8 +295,11 @@ export function ProductsWrapper({
       <ExploreHeaderEnhanced
         searchQuery={searchQuery}
         onSearchChange={handleSearchChange}
+        onCategoryChange={handleCategoryChange}
+        selectedCategory={selectedCategory}
         onFilterChange={handleFilterChange}
         onClearFilters={handleClearFilters}
+        onClearSearch={handleClearSearch}
         filters={mockFilters}
         selectedFilters={selectedFilters}
       />
@@ -244,6 +329,12 @@ export function ProductsWrapper({
               <p className="mt-1 text-gray-300">
                 Search results for:{" "}
                 <span className="font-semibold text-primary">"{searchQuery}"</span>
+              </p>
+            )}
+            {selectedCategory && selectedCategory !== "all" && (
+              <p className="mt-1 text-gray-300">
+                Category:{" "}
+                <span className="font-semibold capitalize text-primary">{selectedCategory}</span>
               </p>
             )}
           </div>
@@ -314,13 +405,15 @@ export function ProductsWrapper({
               <p className="mb-4 text-gray-400">
                 {searchQuery
                   ? `No products match your search for "${searchQuery}"`
-                  : "No products match your current filters"}
+                  : selectedCategory !== "all"
+                    ? `No products found in "${selectedCategory}" category`
+                    : "No products match your current filters"}
               </p>
               <button
                 onClick={handleClearFilters}
                 className="rounded-md bg-primary px-4 py-2 text-primary-foreground transition-colors hover:bg-primary/90"
               >
-                Clear filters
+                Clear all filters
               </button>
             </div>
           )}

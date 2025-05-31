@@ -1,6 +1,5 @@
 import { headers } from "next/headers";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { TrustIndicators } from "@/components/explore/sections/trust-indicators";
 import { ProductsWrapper } from "./components/products-wrapper";
 import productService from "@/services/product-service";
 import type { Product, ProductFilters, ProductListResponse } from "@/types/product";

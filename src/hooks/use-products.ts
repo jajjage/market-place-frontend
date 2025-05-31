@@ -41,12 +41,13 @@ export const useProducts = (
     enabled?: boolean;
   }
 ) => {
+  const hasInitialData = !!options?.initialData;
   return useQuery({
     queryKey: productKeys.list(filters),
     queryFn: () => productService.getProducts(filters),
     staleTime: 5 * 60 * 1000, // 5 minutes
     initialData: options?.initialData,
-    enabled: options?.enabled !== false,
+    enabled: options?.enabled !== false && (!hasInitialData || options?.enabled !== true),
   });
 };
 

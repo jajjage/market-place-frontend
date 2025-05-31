@@ -19,10 +19,6 @@ interface GetProductsHeaders {
   [key: string]: string;
 }
 
-interface GetProductsOptions {
-  headers?: GetProductsHeaders;
-}
-
 const getProducts = async (
   filters: ProductFilters = {},
   extraHeaders: GetProductsHeaders = {}
@@ -41,7 +37,7 @@ const getProducts = async (
       ...extraHeaders,
     },
   });
-  console.log(response.headers);
+
   return response.data;
 };
 
